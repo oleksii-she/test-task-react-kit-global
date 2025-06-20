@@ -24,8 +24,17 @@ export const Blog = createSlice({
     getBlogsApi: (state, action: PayloadAction<IBlog[]>) => {
       state.blogs = action.payload;
     },
+
+    updateBlog: (state, action: PayloadAction<IBlog>) => {
+      const index = state.blogs.findIndex(
+        (blog) => blog.id === action.payload.id
+      );
+      if (index !== -1) {
+        state.blogs[index] = action.payload;
+      }
+    },
   },
 });
 
-export const { addBlog, deleteBlog, getBlogsApi } = Blog.actions;
+export const { addBlog, deleteBlog, getBlogsApi, updateBlog } = Blog.actions;
 export default Blog.reducer;

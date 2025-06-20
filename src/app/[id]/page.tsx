@@ -1,5 +1,23 @@
 import Link from "next/link";
 import { getBlogByIdRoute } from "@/routes/getBlogsRoute";
+import { EditBlogBtn } from "@/components/ButtonEditBlog";
+import { DeleteBlogBtn } from "@/components/ButtonDeleteBlog";
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const id = (await params).id;
+
+  const res = await getBlogByIdRoute(id);
+
+  if (!res) return;
+
+  return {
+    title: res.title,
+    description: res.description,
+  };
+}
 
 const PageId = async ({ params }: { params: Promise<{ id: string }> }) => {
   const id = (await params).id;
@@ -14,7 +32,13 @@ const PageId = async ({ params }: { params: Promise<{ id: string }> }) => {
         <p className="text-gray-300 text-lg leading-relaxed whitespace-pre-line">
           {res?.description}
         </p>
-        <Link href={"/"}>Go back</Link>
+        <Link href={"/"} className="text-amber-600 mt-7">
+          Go back
+        </Link>
+        <div className="flex justify-between mt-3.5">
+          <EditBlogBtn id={id} data={res} />
+          <DeleteBlogBtn id={id} />
+        </div>
       </div>
     </section>
   );
