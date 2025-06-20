@@ -16,7 +16,7 @@ export const Blog = createSlice({
   initialState,
   reducers: {
     addBlog: (state, action: PayloadAction<IBlog>) => {
-      state.blogs.push(action.payload);
+      state.blogs.unshift(action.payload);
     },
     deleteBlog: (state, action: PayloadAction<string>) => {
       state.blogs = state.blogs.filter((blog) => blog.id !== action.payload);
