@@ -1,0 +1,23 @@
+import Link from "next/link";
+import { getBlogByIdRoute } from "@/routes/getBlogsRoute";
+
+const PageId = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const id = (await params).id;
+  const res = await getBlogByIdRoute(id);
+
+  return (
+    <section className="min-h-screen  text-gray-100 px-6 py-12">
+      <div className="max-w-3xl mx-auto bg-gradient-to-b from-neutral-900 to-neutral-800 p-8 rounded-xl shadow-md border border-gray-700">
+        <h2 className="text-3xl font-bold text-indigo-400 mb-4 tracking-tight leading-tight">
+          {res?.title}
+        </h2>
+        <p className="text-gray-300 text-lg leading-relaxed whitespace-pre-line">
+          {res?.description}
+        </p>
+        <Link href={"/"}>Go back</Link>
+      </div>
+    </section>
+  );
+};
+
+export default PageId;
