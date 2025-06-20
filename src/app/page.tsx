@@ -1,7 +1,7 @@
 import { SectionBlogs } from "@/components/sectionBlog/sectionBlog";
 import { AddBlog } from "@/components/ButtonAddBlog";
 import { getBlogsRoute } from "@/routes/getBlogsRoute";
-
+export const dynamic = "force-dynamic";
 const Home = async () => {
   const blogs = await getBlogsRoute();
   return (
