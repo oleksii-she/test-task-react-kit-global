@@ -1,5 +1,5 @@
 "use client";
-export const revalidate = 100;
+
 import { addBlogSchema } from "@/schemasValidation";
 import { useState, useRef, SetStateAction } from "react";
 import { addBlog } from "@/store/features/blogSlice";
