@@ -6,7 +6,7 @@ import { addBlog } from "@/store/features/blogSlice";
 import { useAppDispatch } from "@/store/hooks";
 import { nanoid } from "nanoid";
 import { addBlogRoute } from "@/routes/addBlogRoute";
-import { closeModal } from "@/store/features/modalSlice";
+
 import { IBlog } from "@/types";
 export const EditBlogForm = ({ data }: { data: IBlog | null }) => {
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -43,7 +43,6 @@ export const EditBlogForm = ({ data }: { data: IBlog | null }) => {
 
     setErrors({});
     formRef.current?.reset();
-    dispatch(closeModal());
   };
 
   return (
