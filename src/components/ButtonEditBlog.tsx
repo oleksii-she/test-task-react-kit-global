@@ -16,10 +16,13 @@ export const EditBlogBtn = ({
     <div className="block">
       <div>
         <button
-          className="bg-blue-200 text-gray-600 p-0.5 "
           onClick={() => setToggle(!toggle)}
+          className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 
+             text-white font-semibold py-2 px-4 rounded-lg shadow-lg 
+             hover:brightness-110 hover:scale-105 active:scale-95 
+             transition duration-200"
         >
-          Edit blog
+          ✏️ Edit blog
         </button>
 
         <Modal modalToggle={toggle} setModalToggle={setToggle}>

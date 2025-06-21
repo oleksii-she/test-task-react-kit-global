@@ -5,11 +5,16 @@ export const BlogItem = ({ id, title, description }: IBlog) => {
   return (
     <li
       key={id}
-      className="border max-w-96 border-gray-200 shadow-sm mb-4 p-4 rounded-md  hover:shadow-md transition duration-300"
+      className="bg-gradient-to-br from-zinc-900 to-neutral-800 border border-zinc-700 max-w-96 shadow-md mb-6 p-6 rounded-xl hover:shadow-xl hover:-translate-y-1 transition duration-300"
     >
-      <h2 className="text-lg font-semibold text-indigo-600 mb-1">{title}</h2>
-      <p className="text-white-700 text-sm line-clamp-3">{description}</p>
-      <Link href={`/${id}`}>read more</Link>
+      <h2 className="text-xl font-bold text-indigo-400 mb-2">{title}</h2>
+      <p className="text-gray-300 text-sm line-clamp-3 mb-4">{description}</p>
+      <Link
+        href={`/${id}`}
+        className="inline-block text-sm text-indigo-300 hover:text-white font-medium transition"
+      >
+        Читати далі →
+      </Link>
     </li>
   );
 };

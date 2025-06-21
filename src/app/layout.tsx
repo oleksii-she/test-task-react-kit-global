@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import StoreProvider from "@/StoreProvider";
 
+import { Header } from "@/components/header";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -26,9 +28,19 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning data-lt-installed="true">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}
       >
-        <StoreProvider>{children}</StoreProvider>
+        <StoreProvider>
+          <div className="flex flex-col justify-between min-h-screen">
+            <Header />
+            <main className="">
+              <div className="">{children}</div>
+            </main>
+            <footer className="border-t border-gray-700 text-center text-sm text-gray-400 py-4">
+              <p>&copy; OleksiiShe 2025</p>
+            </footer>
+          </div>
+        </StoreProvider>
       </body>
     </html>
   );

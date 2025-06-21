@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { BlogList } from "../blogList/BlogList";
 
@@ -8,16 +8,33 @@ import { getBlogsApi } from "@/store/features/blogSlice";
 import { IBlog } from "@/types";
 
 export const SectionBlogs = ({ blogs }: { blogs: IBlog[] }) => {
+  const [blogsState, setBlogsState] = useState<IBlog[]>([]);
+  const dispatch = useAppDispatch();
+
   const items = useAppSelector((state) => state.blogs.blogs);
 
-  const dispatch = useAppDispatch();
   useEffect(() => {
-    dispatch(getBlogsApi(blogs));
-  }, [blogs, dispatch]);
+    if (items.length === 0) {
+      dispatch(getBlogsApi(blogs));
+    }
+  }, [dispatch, blogs, items.length]);
 
+  useEffect(() => {
+    setBlogsState(items);
+  }, [items]);
+
+  if (items.length === 0) {
+    return (
+      <h2 className="text-white text-center font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
+        Write your blog ✍️
+      </h2>
+    );
+  }
   return (
     <section>
-      <BlogList items={items} />
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <BlogList items={blogsState} />
+      </div>
     </section>
   );
 };

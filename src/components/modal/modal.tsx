@@ -8,30 +8,32 @@ type Props = {
   setModalToggle: React.Dispatch<SetStateAction<boolean>>;
   modalToggle: boolean;
 };
+
 export const Modal: React.FC<Props> = ({
   children,
   setModalToggle,
   modalToggle,
 }) => {
   useEffect(() => {
-    window.addEventListener("keydown", handlerKeyDown);
-    function handlerKeyDown(e: { code: string }) {
+    const handlerKeyDown = (e: KeyboardEvent) => {
       if (e.code === "Escape") {
         setModalToggle(false);
         document.body.style.overflow = "unset";
       }
-    }
+    };
 
     if (modalToggle) {
       document.body.style.overflow = "hidden";
+      window.addEventListener("keydown", handlerKeyDown);
     } else {
       document.body.style.overflow = "unset";
     }
 
     return () => {
       window.removeEventListener("keydown", handlerKeyDown);
+      document.body.style.overflow = "unset";
     };
-  }, [setModalToggle, modalToggle]);
+  }, [modalToggle, setModalToggle]);
 
   const onCloseOverlay: React.MouseEventHandler<HTMLDivElement> = (e) => {
     if (e.target === e.currentTarget) {
@@ -42,27 +44,21 @@ export const Modal: React.FC<Props> = ({
 
   return (
     <div
-      className={
-        modalToggle
-          ? `${styles.overlay} ${styles.show_modal}`
-          : `${styles.isHidden}`
-      }
-      onClick={(e) => onCloseOverlay(e)}
+      className={`${styles.overlay} ${modalToggle ? styles.show : ""}`}
+      onClick={onCloseOverlay}
     >
-      <div className={styles.container}>
-        <button
-          className={styles.modal_close}
-          onClick={() => setModalToggle(false)}
-        >
-          <IconClose className={styles.modal_closeIcon} />
-        </button>
-        <div
-          className={
-            modalToggle
-              ? `${styles.modal} ${styles.show} ${styles.show_modal}`
-              : `${styles.hidden}`
-          }
-        >
+      <div className={`${styles.container} ${modalToggle ? styles.show : ""}`}>
+        <div className={styles.modal}>
+          <button
+            className={styles.modal_close}
+            onClick={() => {
+              setModalToggle(false);
+              document.body.style.overflow = "unset";
+            }}
+            aria-label="Close modal"
+          >
+            <IconClose className={styles.modal_closeIcon} />
+          </button>
           {children}
         </div>
       </div>

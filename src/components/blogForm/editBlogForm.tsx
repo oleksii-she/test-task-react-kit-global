@@ -7,7 +7,7 @@ import { useAppDispatch } from "@/store/hooks";
 import { useRouter } from "next/navigation";
 import { updateBlogRoute } from "@/routes/updateBlogRoute";
 import { IBlog } from "@/types";
-
+import { Loader } from "../Loader/Loader";
 export const EditBlogForm = ({
   id,
   data,
@@ -19,6 +19,7 @@ export const EditBlogForm = ({
 }) => {
   const [initialState, setInitialState] = useState<IBlog | null>();
   const [error, setError] = useState("");
+  const [load, setLoad] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -43,7 +44,7 @@ export const EditBlogForm = ({
       if (!prevState) return prevState;
       return {
         ...prevState,
-        [name]: value.trim(),
+        [name]: value,
       };
     });
   };
@@ -86,49 +87,48 @@ export const EditBlogForm = ({
     <form
       ref={formRef}
       onSubmit={handleSubmit}
-      className="max-w-md mx-auto p-6 rounded-xl bg-black shadow-md space-y-4"
+      className="mx-auto p-8 rounded-2xl bg-gradient-to-br from-gray-900 via-black to-gray-800 shadow-xl space-y-6"
     >
-      <h3>Edit Blog</h3>
-      {error && <p>{error}</p>}
+      {load && <Loader />}
+      <div>
+        <input
+          name="title"
+          value={initialState?.title}
+          onChange={onChangeHandler}
+          placeholder="Title"
+          className="w-full bg-gray-900  text-white border border-gray-700 px-5 py-3 rounded-lg shadow-inner
+                 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500
+                 placeholder-gray-500 transition duration-300"
+        />
+        {errors.title && (
+          <label className="text-red-400 text-sm mt-1 block">
+            {errors.title}
+          </label>
+        )}
+      </div>
 
-      {initialState && (
-        <>
-          <div>
-            <input
-              name="title"
-              placeholder="Title"
-              value={initialState.title}
-              onChange={onChangeHandler}
-              className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-            {errors.title && (
-              <label className="text-red-500 text-sm mt-1">
-                {errors.title}
-              </label>
-            )}
-          </div>
+      <div>
+        <textarea
+          name="description"
+          onChange={onChangeHandler}
+          value={initialState?.description}
+          placeholder="Description..."
+          className="w-full bg-gray-900 text-white border  md:min-h-[300px]  border-gray-700 px-5 py-3 h-36 rounded-lg shadow-inner resize-none
+                 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500
+                 placeholder-gray-500 transition duration-300"
+        />
+        {errors.description && (
+          <p className="text-red-400 text-sm mt-1">{errors.description}</p>
+        )}
+      </div>
 
-          <div>
-            <textarea
-              name="description"
-              placeholder="Description..."
-              value={initialState.description}
-              onChange={onChangeHandler}
-              className="w-full border border-gray-300 px-4 py-2 h-32 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-            {errors.description && (
-              <p className="text-red-500 text-sm mt-1">{errors.description}</p>
-            )}
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition"
-          >
-            Add Blog
-          </button>
-        </>
-      )}
+      <button
+        type="submit"
+        className="cursor-pointer w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold
+               hover:bg-indigo-700 active:scale-95 transition-transform duration-150 shadow-lg"
+      >
+        Add Blog
+      </button>
     </form>
   );
 };

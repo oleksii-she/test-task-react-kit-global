@@ -9,7 +9,7 @@ export const AddBlog = () => {
     <div className="block">
       <div>
         <button
-          className="bg-blue-200 text-gray-600 p-0.5 "
+          className="text-xl sm:text-1xl md:text-3xl  cursor-pointer bg-gradient-to-r from-blue-400 to-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:from-blue-500 hover:to-blue-700 hover:scale-105 transition-transform duration-300"
           onClick={() => setToggle(!toggle)}
         >
           Add blog
