@@ -27,7 +27,7 @@ export const EditBlogBtn = ({
           ✏️ Edit blog
         </button>
 
-        <Modal modalToggle={toggle} setModalToggle={setToggle}>
+        <Modal closeIcon={true} modalToggle={toggle} setModalToggle={setToggle}>
           <EditBlogForm id={id} setModalToggle={setToggle} data={data} />
         </Modal>
       </div>

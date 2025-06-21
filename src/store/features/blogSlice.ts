@@ -53,6 +53,27 @@ export const Blog = createSlice({
     addComment: (state, action: PayloadAction<IComment>) => {
       state.comments.unshift(action.payload);
     },
+    deleteComment: (state, action: PayloadAction<string>) => {
+      state.comments = state.comments.filter(
+        (blog) => blog.id !== action.payload
+      );
+    },
+
+    updateComment: (
+      state,
+      action: PayloadAction<Partial<IComment> & { id: string }>
+    ) => {
+      const index = state.comments.findIndex(
+        (comment) => comment.id === action.payload.id
+      );
+
+      if (index !== -1) {
+        state.comments[index] = {
+          ...state.comments[index],
+          ...action.payload,
+        };
+      }
+    },
   },
 });
 
@@ -64,5 +85,7 @@ export const {
   addCommentCollectionId,
   getCommentsApi,
   addComment,
+  deleteComment,
+  updateComment,
 } = Blog.actions;
 export default Blog.reducer;

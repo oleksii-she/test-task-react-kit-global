@@ -8,6 +8,9 @@ import {
   orderBy,
   getDoc,
   Timestamp,
+  deleteDoc,
+  doc,
+  updateDoc,
 } from "firebase/firestore";
 
 export const addCommentRoute = async ({
@@ -111,6 +114,73 @@ export const getCommentsForPost = async (blogPostId: string) => {
       };
     });
     return comments;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("comment error:", error.message);
+    } else {
+      console.error("unknown error:", error);
+    }
+    throw error;
+  }
+};
+
+export const deleteCommentRoute = async ({
+  blogPostId,
+  commentId,
+}: {
+  blogPostId: string;
+  commentId: string;
+}) => {
+  try {
+    const commentDocRef = doc(db, "blogs", blogPostId, "comments", commentId);
+
+    await deleteDoc(commentDocRef);
+
+    console.log(
+      `Коментар з ID "${commentId}" для блогу "${blogPostId}" успішно видалено.`
+    );
+    return true;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Помилка під час видалення коментаря:", error.message);
+    } else {
+      console.error("Невідома помилка під час видалення коментаря:", error);
+    }
+    throw error;
+  }
+};
+
+interface CommentUpdateData {
+  text?: string;
+  author?: string;
+}
+
+export const updateCommentRoute = async ({
+  blogPostId,
+  editingCommentId,
+  updates,
+}: {
+  blogPostId: string;
+  editingCommentId: string;
+  updates: CommentUpdateData;
+}) => {
+  try {
+    const commentDocRef = doc(
+      db,
+      "blogs",
+      blogPostId,
+      "comments",
+      editingCommentId
+    );
+
+    const dataToUpdate = {
+      ...updates,
+      updatedAt: serverTimestamp(),
+    };
+
+    await updateDoc(commentDocRef, dataToUpdate);
+
+    return true;
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("comment error:", error.message);

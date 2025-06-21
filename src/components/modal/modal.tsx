@@ -7,12 +7,14 @@ type Props = {
   children: React.ReactNode;
   setModalToggle: React.Dispatch<SetStateAction<boolean>>;
   modalToggle: boolean;
+  closeIcon?: boolean;
 };
 
 export const Modal: React.FC<Props> = ({
   children,
   setModalToggle,
   modalToggle,
+  closeIcon,
 }) => {
   useEffect(() => {
     const handlerKeyDown = (e: KeyboardEvent) => {
@@ -49,16 +51,18 @@ export const Modal: React.FC<Props> = ({
     >
       <div className={`${styles.container} ${modalToggle ? styles.show : ""}`}>
         <div className={styles.modal}>
-          <button
-            className={styles.modal_close}
-            onClick={() => {
-              setModalToggle(false);
-              document.body.style.overflow = "unset";
-            }}
-            aria-label="Close modal"
-          >
-            <IconClose className={styles.modal_closeIcon} />
-          </button>
+          {closeIcon && (
+            <button
+              className={styles.modal_close}
+              onClick={() => {
+                setModalToggle(false);
+                document.body.style.overflow = "unset";
+              }}
+              aria-label="Close modal"
+            >
+              <IconClose className={styles.modal_closeIcon} />
+            </button>
+          )}
           {children}
         </div>
       </div>

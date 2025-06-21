@@ -1,13 +1,14 @@
 "use client";
 
 import { addCommentSchema } from "@/schemasValidation";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { addComment } from "@/store/features/blogSlice";
 import { useAppDispatch } from "@/store/hooks";
-
+import { Loader } from "../Loader/Loader";
 import { addCommentRoute } from "@/routes/commentsRoutes";
 
 export const CommentForm = ({ id }: { id: string }) => {
+  const [load, setLoad] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
 
   const dispatch = useAppDispatch();
@@ -21,24 +22,28 @@ export const CommentForm = ({ id }: { id: string }) => {
       text: (formData.get("text") as string) ?? "",
     };
 
+    setLoad(true);
     const result = addCommentSchema.safeParse(data);
 
     if (!result.success) {
+      setLoad(false);
       console.error(result.error.format());
-      return; // або покажи помилку користувачу
+      return;
     }
 
     const res = await addCommentRoute(data);
-    console.log(res, "res");
+
     if (!res) {
+      setLoad(false);
       return;
     }
     dispatch(addComment(res));
+    setLoad(false);
     formRef.current?.reset();
   };
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
+    <form className="space-y-4 pb-6" onSubmit={handleSubmit} ref={formRef}>
       <input
         name="author"
         placeholder="NickName..."
@@ -50,11 +55,12 @@ export const CommentForm = ({ id }: { id: string }) => {
         className="w-full bg-neutral-900 text-white border border-gray-700 px-4 py-2 rounded-lg resize-none"
         rows={4}
       />
+      {load && <Loader />}
       <button
         type="submit"
         className="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg text-white"
       >
-        Надіслати
+        Submit
       </button>
     </form>
   );

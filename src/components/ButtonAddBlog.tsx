@@ -15,7 +15,7 @@ export const AddBlog = () => {
           Add blog
         </button>
 
-        <Modal modalToggle={toggle} setModalToggle={setToggle}>
+        <Modal closeIcon={true} modalToggle={toggle} setModalToggle={setToggle}>
           <AddBlogForm setModalToggle={setToggle} />
         </Modal>
       </div>
