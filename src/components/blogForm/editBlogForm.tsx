@@ -17,7 +17,12 @@ export const EditBlogForm = ({
   data: IBlog | null;
   setModalToggle: React.Dispatch<SetStateAction<boolean>>;
 }) => {
-  const [initialState, setInitialState] = useState<IBlog | null>();
+  const [initialState, setInitialState] = useState<IBlog>({
+    id,
+    title: "",
+    description: "",
+  });
+
   const [error, setError] = useState("");
   const [load, setLoad] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
@@ -59,13 +64,14 @@ export const EditBlogForm = ({
     };
 
     const result = addBlogSchema.safeParse(data);
-
+    setLoad(true);
     if (!result.success) {
       const formatted = result.error.format();
       setErrors({
         title: formatted.title?._errors[0],
         description: formatted.description?._errors[0],
       });
+      setLoad(false);
 
       return;
     }
@@ -73,12 +79,14 @@ export const EditBlogForm = ({
     const newData = await updateBlogRoute(id, result.data);
     console.log(newData, "newData");
     if (!newData) {
+      setLoad(false);
       return setError("error update");
     }
 
     dispatch(updateBlog(result.data));
     setModalToggle(false);
     setErrors({});
+    setLoad(false);
     formRef.current?.reset();
     router.back();
   };
@@ -89,6 +97,7 @@ export const EditBlogForm = ({
       onSubmit={handleSubmit}
       className="mx-auto p-8 rounded-2xl bg-gradient-to-br from-gray-900 via-black to-gray-800 shadow-xl space-y-6"
     >
+      {error && <p className="text-red-400 text-sm mt-1">{error}</p>}
       {load && <Loader />}
       <div>
         <input
@@ -127,7 +136,7 @@ export const EditBlogForm = ({
         className="cursor-pointer w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold
                hover:bg-indigo-700 active:scale-95 transition-transform duration-150 shadow-lg"
       >
-        Add Blog
+        Edit Blog
       </button>
     </form>
   );

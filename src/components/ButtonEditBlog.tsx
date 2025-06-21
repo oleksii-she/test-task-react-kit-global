@@ -1,8 +1,10 @@
 "use client";
+
 import { Modal } from "./modal/modal";
 import { EditBlogForm } from "./blogForm/editBlogForm";
 import { useState } from "react";
 import { IBlog } from "@/types";
+
 export const EditBlogBtn = ({
   data,
   id,

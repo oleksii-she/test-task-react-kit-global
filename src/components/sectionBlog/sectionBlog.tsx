@@ -32,9 +32,7 @@ export const SectionBlogs = ({ blogs }: { blogs: IBlog[] }) => {
   }
   return (
     <section>
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <BlogList items={blogsState} />
-      </div>
+      <BlogList items={blogsState} />
     </section>
   );
 };

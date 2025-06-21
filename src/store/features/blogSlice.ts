@@ -1,14 +1,18 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IBlog } from "@/types";
+import { IBlog, IComment } from "@/types";
 
 interface IState {
   loading: boolean;
+  commentCollectionId: string;
   blogs: IBlog[];
+  comments: IComment[];
 }
 
 const initialState: IState = {
   loading: false,
   blogs: [],
+  commentCollectionId: "",
+  comments: [],
 };
 
 export const Blog = createSlice({
@@ -33,8 +37,32 @@ export const Blog = createSlice({
         state.blogs[index] = action.payload;
       }
     },
+
+    // comments
+    addCommentCollectionId: (state, action: PayloadAction<{ id: string }>) => {
+      if (state.commentCollectionId === action.payload.id) {
+        return;
+      }
+      state.commentCollectionId = action.payload.id;
+      state.comments = [];
+    },
+
+    getCommentsApi: (state, action: PayloadAction<IComment[]>) => {
+      state.comments = action.payload;
+    },
+    addComment: (state, action: PayloadAction<IComment>) => {
+      state.comments.unshift(action.payload);
+    },
   },
 });
 
-export const { addBlog, deleteBlog, getBlogsApi, updateBlog } = Blog.actions;
+export const {
+  addBlog,
+  deleteBlog,
+  getBlogsApi,
+  updateBlog,
+  addCommentCollectionId,
+  getCommentsApi,
+  addComment,
+} = Blog.actions;
 export default Blog.reducer;
