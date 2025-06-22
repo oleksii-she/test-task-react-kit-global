@@ -24,6 +24,8 @@
 }
 .modal {
   position: relative;
+  padding-left: 15px;
+  padding-right: 15px;
   width: 100%;
   margin: 0 auto;
   max-width: 1200px;
@@ -34,8 +36,8 @@
 
 .modal_close {
   position: absolute;
-  top: -12px;
-  right: -12px;
+  top: -9px;
+  right: 9px;
   background: white;
   border-radius: 50%;
   border: none;
@@ -49,6 +51,11 @@
 
   -ms-overflow-style: none;
   scrollbar-width: none;
+
+  @media screen and (max-width: 768px) {
+    top: -9px;
+    right: 9px;
+  }
 }
 
 .modal_closeIcon {
