@@ -73,6 +73,10 @@ export const CommentForm = ({ id }: { id: string }) => {
     dispatch(addComment(res));
     setLoad(false);
     formRef.current?.reset();
+    setInitialState({
+      author: "",
+      text: "",
+    });
   };
 
   return (

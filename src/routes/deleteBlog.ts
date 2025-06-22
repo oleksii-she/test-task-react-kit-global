@@ -1,5 +1,5 @@
-import { db } from "@/firebase/config"; // Імпортуємо ваш ініціалізований db
-import { doc, deleteDoc } from "firebase/firestore"; // Імпортуємо doc та deleteDoc
+import { db } from "@/firebase/config";
+import { doc, deleteDoc } from "firebase/firestore";
 
 export const deleteBlogRoute = async (id: string): Promise<string> => {
   try {

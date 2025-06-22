@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IBlog, IComment } from "@/types";
+import { parseDate } from "@/utills";
 
 interface IState {
   loading: boolean;
@@ -35,6 +36,31 @@ export const Blog = createSlice({
       );
       if (index !== -1) {
         state.blogs[index] = action.payload;
+      }
+    },
+
+    sortBlogsDateFilter: (
+      state,
+      action: PayloadAction<"oldest" | "newest">
+    ) => {
+      if (action.payload === "newest") {
+        const sortedNewest = [...state.blogs].sort((a, b) => {
+          const dateA = a.createdAt ? parseDate(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? parseDate(b.createdAt).getTime() : 0;
+          return dateB - dateA;
+        });
+
+        console.log(sortedNewest, "sortedNewest");
+
+        state.blogs = sortedNewest;
+      } else {
+        const sortedOld = [...state.blogs].sort((a, b) => {
+          const dateA = a.createdAt ? parseDate(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? parseDate(b.createdAt).getTime() : 0;
+          return dateA - dateB;
+        });
+
+        state.blogs = sortedOld;
       }
     },
 
@@ -74,6 +100,27 @@ export const Blog = createSlice({
         };
       }
     },
+
+    sortCommentsDateFilter: (
+      state,
+      action: PayloadAction<"oldest" | "newest">
+    ) => {
+      if (action.payload === "newest") {
+        const sortedNewest = [...state.comments].sort((a, b) => {
+          const dateA = a.createdAt ? parseDate(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? parseDate(b.createdAt).getTime() : 0;
+          return dateB - dateA;
+        });
+        state.comments = sortedNewest;
+      } else {
+        const sortedOld = [...state.comments].sort((a, b) => {
+          const dateA = a.createdAt ? parseDate(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? parseDate(b.createdAt).getTime() : 0;
+          return dateA - dateB;
+        });
+        state.comments = sortedOld;
+      }
+    },
   },
 });
 
@@ -87,5 +134,7 @@ export const {
   addComment,
   deleteComment,
   updateComment,
+  sortCommentsDateFilter,
+  sortBlogsDateFilter,
 } = Blog.actions;
 export default Blog.reducer;

@@ -77,13 +77,13 @@ export const EditBlogForm = ({
     }
 
     const newData = await updateBlogRoute(id, result.data);
-    console.log(newData, "newData");
+
     if (!newData) {
       setLoad(false);
       return setError("error update");
     }
 
-    dispatch(updateBlog(result.data));
+    dispatch(updateBlog(newData));
     setModalToggle(false);
     setErrors({});
     setLoad(false);

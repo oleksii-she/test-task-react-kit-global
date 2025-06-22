@@ -7,12 +7,12 @@ import {
   getDocs,
   orderBy,
   getDoc,
-  Timestamp,
   deleteDoc,
   doc,
   updateDoc,
 } from "firebase/firestore";
-
+import { formatFireStoreTimestamp } from "@/utills";
+import { IComment } from "@/types";
 export const addCommentRoute = async ({
   id,
   author,
@@ -21,7 +21,7 @@ export const addCommentRoute = async ({
   id: string;
   author: string;
   text: string;
-}) => {
+}): Promise<IComment> => {
   try {
     const commentsCollectionRef = collection(db, "blogs", id, "comments");
 
@@ -36,24 +36,9 @@ export const addCommentRoute = async ({
     if (newCommentSnapshot.exists()) {
       const newCommentData = newCommentSnapshot.data();
 
-      let createdAtString = "";
-      if (newCommentData.createdAt instanceof Timestamp) {
-        const date = newCommentData.createdAt.toDate();
-        createdAtString = date.toLocaleDateString("uk-UA", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        });
-      } else {
-        console.warn(
-          "createdAt не є об'єктом Timestamp:",
-          newCommentData.createdAt
-        );
-        createdAtString = new Date().toLocaleDateString("uk-UA", {});
-      }
+      const createdAtString = formatFireStoreTimestamp(
+        newCommentData.createdAt
+      );
 
       const finalAuthor = newCommentData.author as string;
       const finalText = newCommentData.text as string;
@@ -65,19 +50,21 @@ export const addCommentRoute = async ({
         createdAt: createdAtString,
       };
     } else {
-      throw new Error("Щойно доданий коментар не знайдено у Firestore.");
+      throw new Error("comment is not found in Firestore.");
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("Помилка під час додавання коментаря:", error.message);
+      console.error("error add comment:", error.message);
     } else {
-      console.error("Невідома помилка під час додавання коментаря:", error);
+      console.error("unknown comments error:", error);
     }
     throw error;
   }
 };
 
-export const getCommentsForPost = async (blogPostId: string) => {
+export const getCommentsForPost = async (
+  blogPostId: string
+): Promise<IComment[]> => {
   try {
     const commentsCollectionRef = collection(
       db,
@@ -86,57 +73,28 @@ export const getCommentsForPost = async (blogPostId: string) => {
       "comments"
     );
 
-    const q = query(commentsCollectionRef, orderBy("createdAt", "asc"));
+    const q = query(commentsCollectionRef, orderBy("createdAt", "desc"));
 
     const querySnapshot = await getDocs(q);
 
     const comments = querySnapshot.docs.map((doc) => {
       const data = doc.data();
-      let createdAtString = "";
-
-      if (data.createdAt instanceof Timestamp) {
-        const date = data.createdAt.toDate();
-        createdAtString = date.toLocaleDateString("uk-UA", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        });
-      } else if (typeof data.createdAt === "string") {
-        createdAtString = data.createdAt;
-      }
-
-      let updatedAtString: string | undefined = undefined;
-      if (data.updatedAt instanceof Timestamp) {
-        const date = data.updatedAt.toDate();
-        updatedAtString = date.toLocaleDateString("uk-UA", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        });
-      } else if (typeof data.updatedAt === "string") {
-        updatedAtString = data.updatedAt;
-      }
+      const createdAtString = formatFireStoreTimestamp(data.createdAt);
 
       return {
         id: doc.id,
-        ...data,
+        author: data.author ?? "",
+        text: data.text ?? "",
         createdAt: createdAtString,
-        updatedAt: updatedAtString,
       };
     });
 
     return comments;
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("Помилка при отриманні коментарів:", error.message);
+      console.error("error get comment:", error.message);
     } else {
-      console.error("Невідома помилка при отриманні коментарів:", error);
+      console.error("unknown comments error:", error);
     }
     throw error;
   }
@@ -153,15 +111,12 @@ export const deleteCommentRoute = async ({
 
     await deleteDoc(commentDocRef);
 
-    console.log(
-      `Коментар з ID "${commentId}" для блогу "${blogPostId}" успішно видалено.`
-    );
     return true;
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("Помилка під час видалення коментаря:", error.message);
+      console.error("error delete comment:", error.message);
     } else {
-      console.error("Невідома помилка під час видалення коментаря:", error);
+      console.error("unknown comments error:", error);
     }
     throw error;
   }
@@ -180,7 +135,7 @@ export const updateCommentRoute = async ({
   blogPostId: string;
   editingCommentId: string;
   updates: CommentUpdateData;
-}) => {
+}): Promise<IComment | undefined> => {
   try {
     const commentDocRef = doc(
       db,
@@ -197,10 +152,28 @@ export const updateCommentRoute = async ({
 
     await updateDoc(commentDocRef, dataToUpdate);
 
-    return true;
+    const newCommentSnapshot = await getDoc(commentDocRef);
+
+    if (newCommentSnapshot.exists()) {
+      const newCommentData = newCommentSnapshot.data();
+
+      const createdAtString = formatFireStoreTimestamp(
+        newCommentData.createdAt
+      );
+
+      const finalAuthor = newCommentData.author as string;
+      const finalText = newCommentData.text as string;
+
+      return {
+        id: commentDocRef.id,
+        author: finalAuthor,
+        text: finalText,
+        createdAt: createdAtString,
+      };
+    }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("comment error:", error.message);
+      console.error("comment update error:", error.message);
     } else {
       console.error("unknown error:", error);
     }

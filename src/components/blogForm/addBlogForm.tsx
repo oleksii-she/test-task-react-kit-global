@@ -15,6 +15,7 @@ export const AddBlogForm = ({
   const [errors, setErrors] = useState<{
     title?: string;
     description?: string;
+    other?: string;
   }>({});
   const [load, setLoad] = useState(false);
 
@@ -44,9 +45,14 @@ export const AddBlogForm = ({
     }
 
     const res = await addBlogRoute(result.data);
-    console.log(res, "res");
 
-    dispatch(addBlog(result.data));
+    if (!res) {
+      setErrors({
+        other: "Error on the server, try later",
+      });
+    }
+
+    dispatch(addBlog(res));
     setLoad(false);
     setErrors({});
     formRef.current?.reset();
@@ -87,6 +93,11 @@ export const AddBlogForm = ({
           <p className="text-red-400 text-sm mt-1">{errors.description}</p>
         )}
       </div>
+      {errors.other && (
+        <label className="text-red-400 text-sm mt-1 block">
+          {errors.other}
+        </label>
+      )}
 
       <button
         type="submit"

@@ -9,7 +9,7 @@ import {
   Timestamp,
 } from "firebase/firestore";
 import { IBlog } from "@/types";
-
+import { formatFireStoreTimestamp } from "@/utills";
 export const getBlogsRoute = async (): Promise<IBlog[]> => {
   try {
     const q = query(collection(db, "blogs"), orderBy("createdAt", "desc"));
@@ -18,19 +18,7 @@ export const getBlogsRoute = async (): Promise<IBlog[]> => {
     const blogs: IBlog[] = [];
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      let createdAtString: string;
-
-      if (data.createdAt instanceof Timestamp) {
-        createdAtString = data.createdAt.toDate().toISOString();
-      } else if (data.createdAt) {
-        try {
-          createdAtString = new Date(data.createdAt).toISOString();
-        } catch {
-          createdAtString = new Date().toISOString();
-        }
-      } else {
-        createdAtString = new Date().toISOString();
-      }
+      const createdAtString = formatFireStoreTimestamp(data.createdAt);
 
       blogs.push({
         id: doc.id,

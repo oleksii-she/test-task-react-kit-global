@@ -1,5 +1,5 @@
 "use client";
-
+import { ZodError } from "zod";
 import { useState, useEffect } from "react";
 import { IComment } from "@/types";
 import { CommentForm } from "./blogForm/addCommentForm";
@@ -8,12 +8,14 @@ import {
   getCommentsApi,
   addCommentCollectionId,
   updateComment,
+  sortCommentsDateFilter,
 } from "@/store/features/blogSlice";
 import { CommentEdit } from "./blogForm/editCommentForm";
 import { ButtonDeleteComment } from "./ButtonDeleteComment";
 import { updateCommentRoute } from "@/routes/commentsRoutes";
 import { addCommentSchema } from "@/schemasValidation";
-import { ZodError } from "zod";
+import { Filter } from "./filter";
+
 export const SectionComments = ({
   id: blogPostId,
   data,
@@ -46,7 +48,7 @@ export const SectionComments = ({
     }));
   };
 
-  const submit = async () => {
+  const submitEditComment = async () => {
     if (!editingCommentId) return;
 
     const updatedData = {
@@ -72,7 +74,7 @@ export const SectionComments = ({
         setErrorUpdate("Sorry, failed to make an update");
         return;
       }
-      dispatch(updateComment(updatedData));
+      dispatch(updateComment(res));
 
       setEditingCommentId(null);
       setUpdateState({});
@@ -111,12 +113,20 @@ export const SectionComments = ({
     setCommentState(comments);
   }, [comments]);
 
+  const changFilter = (value: "oldest" | "newest") => {
+    dispatch(sortCommentsDateFilter(value));
+  };
+
   return (
     <section className="space-y-6">
       <div>
         <h3 className="text-xl font-semibold text-indigo-300 mb-2">Comments</h3>
 
         <CommentForm id={blogPostId} />
+
+        <div className="mb-5">
+          <Filter onChange={changFilter} />
+        </div>
 
         {commentState.length === 0 && (
           <h2 className="text-white text-center font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
@@ -134,7 +144,7 @@ export const SectionComments = ({
                 key={commentId}
                 className="p-4 border border-gray-700 rounded-lg bg-neutral-800"
               >
-                <div>
+                <article>
                   {!isEditing ? (
                     <>
                       <div className="flex justify-between items-center mb-5">
@@ -183,7 +193,7 @@ export const SectionComments = ({
                       </div>
                     </div>
                   )}
-                </div>
+                </article>
 
                 <div className="flex justify-between mt-5">
                   <ButtonDeleteComment
@@ -214,7 +224,7 @@ export const SectionComments = ({
                     <div className="flex gap-2.5">
                       <button
                         type="button"
-                        onClick={submit}
+                        onClick={submitEditComment}
                         className="inline-flex items-center gap-1 px-4 py-2 bg-gradient-to-tr from-emerald-500 to-emerald-600 text-white font-semibold text-sm rounded-full shadow-lg hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 active:scale-95"
                       >
                         ✅ Confirm
