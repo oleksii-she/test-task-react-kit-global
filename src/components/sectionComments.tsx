@@ -12,9 +12,8 @@ import {
 import { CommentEdit } from "./blogForm/editCommentForm";
 import { ButtonDeleteComment } from "./ButtonDeleteComment";
 import { updateCommentRoute } from "@/routes/commentsRoutes";
-import { updateCommentSchema } from "@/schemasValidation";
+import { addCommentSchema } from "@/schemasValidation";
 import { ZodError } from "zod";
-
 export const SectionComments = ({
   id: blogPostId,
   data,
@@ -26,30 +25,12 @@ export const SectionComments = ({
   const [updateState, setUpdateState] = useState<{
     [key: string]: { author: string; text: string };
   }>({});
-
   const [errorUpdate, setErrorUpdate] = useState("");
-  const [editingField, setEditingField] = useState<{
-    commentId: string | null;
-    field: "author" | "text" | null;
-  }>({ commentId: null, field: null });
-  console.log(updateState, "updateState");
-
-  const dispatch = useAppDispatch();
-  const comments = useAppSelector((state) => state.blogs.comments);
-  const defaultFields = () => {
-    setEditingField({ commentId: null, field: null });
-  };
-
-  useEffect(() => {
-    dispatch(addCommentCollectionId({ id: blogPostId }));
-    if (comments.length === 0) {
-      dispatch(getCommentsApi(data));
-    }
-  }, [dispatch, data, comments.length, blogPostId]);
-
-  useEffect(() => {
-    setCommentState(comments);
-  }, [comments]);
+  const [errorFields, setErrorFields] = useState({
+    author: "",
+    text: "",
+  });
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
 
   const onChangeHandler = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -66,44 +47,69 @@ export const SectionComments = ({
   };
 
   const submit = async () => {
-    if (!editingField.commentId || !editingField.field) return;
+    if (!editingCommentId) return;
 
     const updatedData = {
-      id: editingField.commentId,
-      [editingField.field]:
-        updateState[editingField.commentId]?.[editingField.field] || "",
+      id: editingCommentId,
+      ...updateState[editingCommentId],
     };
 
     try {
-      updateCommentSchema.parse(updatedData);
+      const parse = addCommentSchema.parse(updatedData);
+
+      const updates = {
+        author: parse.author,
+        text: parse.text,
+      };
 
       const res = await updateCommentRoute({
         blogPostId,
-        editingCommentId: editingField.commentId,
-        updates: {
-          [editingField.field]: updatedData[editingField.field],
-        },
+        editingCommentId,
+        updates,
       });
 
       if (!res) {
         setErrorUpdate("Sorry, failed to make an update");
         return;
       }
-
       dispatch(updateComment(updatedData));
 
-      defaultFields();
+      setEditingCommentId(null);
       setUpdateState({});
       setErrorUpdate("");
     } catch (error) {
       if (error instanceof ZodError) {
-        const firstError = error.errors[0]?.message || "Validation error.";
-        setErrorUpdate(firstError);
+        const fieldErrors: { [key: string]: string } = {};
+        error.errors.forEach((err) => {
+          const field = err.path[0];
+          if (typeof field === "string") {
+            fieldErrors[field] = err.message;
+          }
+        });
+
+        setErrorFields({
+          author: fieldErrors.author || "",
+          text: fieldErrors.text || "",
+        });
       } else {
-        setErrorUpdate("Unexpected error occurred.");
+        setErrorUpdate("Unexpected error occurred");
       }
     }
   };
+
+  const dispatch = useAppDispatch();
+  const comments = useAppSelector((state) => state.blogs.comments);
+
+  useEffect(() => {
+    dispatch(addCommentCollectionId({ id: blogPostId }));
+    if (comments.length === 0) {
+      dispatch(getCommentsApi(data));
+    }
+  }, [dispatch, data, comments.length, blogPostId]);
+
+  useEffect(() => {
+    setCommentState(comments);
+  }, [comments]);
 
   return (
     <section className="space-y-6">
@@ -120,13 +126,7 @@ export const SectionComments = ({
 
         <ul className="space-y-4">
           {commentState.map(({ id: commentId, author, text, createdAt }) => {
-            const isEditingAuthor =
-              editingField.commentId === commentId &&
-              editingField.field === "author";
-            const isEditingText =
-              editingField.commentId === commentId &&
-              editingField.field === "text";
-
+            const isEditing = editingCommentId === commentId;
             const updatedValues = updateState[commentId] || { author, text };
 
             return (
@@ -134,75 +134,104 @@ export const SectionComments = ({
                 key={commentId}
                 className="p-4 border border-gray-700 rounded-lg bg-neutral-800"
               >
-                <div className="flex justify-between items-center">
-                  <div className="flex gap-4 items-center">
-                    <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-semibold shadow">
-                      {author?.slice(0, 2).toUpperCase()}
-                    </div>
-
-                    {isEditingAuthor ? (
-                      <>
-                        <CommentEdit
-                          value={updatedValues.author}
-                          onChangeHandler={(e) => onChangeHandler(e, commentId)}
-                          submit={submit}
-                          type="author"
-                          defaultFields={defaultFields}
-                        />
-                        <p className="text-red-700">{errorUpdate}</p>
-                      </>
-                    ) : (
-                      <>
-                        <span className="text-white font-medium">{author}</span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingField({ commentId, field: "author" });
-                          }}
-                          className="px-3 py-1 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700"
-                        >
-                          ✏️ Author
-                        </button>
-                      </>
-                    )}
-                  </div>
-                  <span className="text-xs text-gray-400">{createdAt}</span>
-                </div>
-
-                <div className="mt-2">
-                  {isEditingText ? (
+                <div>
+                  {!isEditing ? (
                     <>
-                      <CommentEdit
-                        value={updatedValues.text}
-                        onChangeHandler={(e) => onChangeHandler(e, commentId)}
-                        submit={submit}
-                        type="text"
-                        defaultFields={defaultFields}
-                      />
-                      <p className="text-red-700">{errorUpdate}</p>
-                    </>
-                  ) : (
-                    <>
+                      <div className="flex justify-between items-center mb-5">
+                        <div className="flex gap-4 items-center">
+                          <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-semibold shadow">
+                            {author?.slice(0, 2).toUpperCase()}
+                          </div>
+                          <span className="text-white font-medium">
+                            {author}
+                          </span>
+                        </div>
+                        <span className="text-xs text-gray-400">
+                          {createdAt}
+                        </span>
+                      </div>
                       <p className="text-gray-300 leading-relaxed whitespace-pre-line">
                         {text}
                       </p>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingField({ commentId, field: "text" });
-                        }}
-                        className="mt-2 px-3 py-1 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700"
-                      >
-                        ✏️ Edit Text
-                      </button>
                     </>
+                  ) : (
+                    <div className="relative">
+                      <div className="mb-5 relative">
+                        <CommentEdit
+                          value={updatedValues.author}
+                          onChangeHandler={(e) => onChangeHandler(e, commentId)}
+                          type={"author"}
+                        />
+                        <p className="text-red-700 absolute">
+                          {errorFields.author}
+                        </p>
+                      </div>
+                      <div className="mb-5">
+                        <div className="relative">
+                          <CommentEdit
+                            value={updatedValues.text}
+                            onChangeHandler={(e) =>
+                              onChangeHandler(e, commentId)
+                            }
+                            type={"text"}
+                          />
+                          <p className="text-red-700 absolute">
+                            {errorFields.text}
+                          </p>
+                        </div>
+                        <p className="text-red-700">{errorUpdate}</p>
+                      </div>
+                    </div>
                   )}
                 </div>
 
-                <ButtonDeleteComment
-                  blogPostId={blogPostId}
-                  commentId={commentId}
-                />
+                <div className="flex justify-between mt-5">
+                  <ButtonDeleteComment
+                    blogPostId={blogPostId}
+                    commentId={commentId}
+                  />
+
+                  {!isEditing ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!updateState[commentId]) {
+                          setUpdateState((prev) => ({
+                            ...prev,
+                            [commentId]: {
+                              author: author ?? "",
+                              text: text ?? "",
+                            },
+                          }));
+                        }
+                        setEditingCommentId(commentId);
+                      }}
+                      className="px-3 py-1 bg-indigo-600 text-white rounded text-sm hover:bg-indigo-700"
+                    >
+                      ✏️ Edit
+                    </button>
+                  ) : (
+                    <div className="flex gap-2.5">
+                      <button
+                        type="button"
+                        onClick={submit}
+                        className="inline-flex items-center gap-1 px-4 py-2 bg-gradient-to-tr from-emerald-500 to-emerald-600 text-white font-semibold text-sm rounded-full shadow-lg hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 active:scale-95"
+                      >
+                        ✅ Confirm
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUpdateState({});
+                          setEditingCommentId(null);
+                        }}
+                        className="inline-flex items-center gap-1 px-4 py-2 bg-gray-300 text-gray-800 font-semibold text-sm rounded-full shadow-inner hover:bg-gray-400 transition-all duration-200 active:scale-95"
+                      >
+                        ❌ Close
+                      </button>
+                    </div>
+                  )}
+                </div>
               </li>
             );
           })}

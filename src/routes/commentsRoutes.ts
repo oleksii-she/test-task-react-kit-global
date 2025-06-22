@@ -94,9 +94,8 @@ export const getCommentsForPost = async (blogPostId: string) => {
       const data = doc.data();
       let createdAtString = "";
 
-      if (data.createdAt && typeof data.createdAt.toDate === "function") {
+      if (data.createdAt instanceof Timestamp) {
         const date = data.createdAt.toDate();
-
         createdAtString = date.toLocaleDateString("uk-UA", {
           year: "numeric",
           month: "2-digit",
@@ -105,25 +104,43 @@ export const getCommentsForPost = async (blogPostId: string) => {
           minute: "2-digit",
           second: "2-digit",
         });
+      } else if (typeof data.createdAt === "string") {
+        createdAtString = data.createdAt;
+      }
+
+      let updatedAtString: string | undefined = undefined;
+      if (data.updatedAt instanceof Timestamp) {
+        const date = data.updatedAt.toDate();
+        updatedAtString = date.toLocaleDateString("uk-UA", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+      } else if (typeof data.updatedAt === "string") {
+        updatedAtString = data.updatedAt;
       }
 
       return {
         id: doc.id,
         ...data,
         createdAt: createdAtString,
+        updatedAt: updatedAtString,
       };
     });
+
     return comments;
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("comment error:", error.message);
+      console.error("Помилка при отриманні коментарів:", error.message);
     } else {
-      console.error("unknown error:", error);
+      console.error("Невідома помилка при отриманні коментарів:", error);
     }
     throw error;
   }
 };
-
 export const deleteCommentRoute = async ({
   blogPostId,
   commentId,

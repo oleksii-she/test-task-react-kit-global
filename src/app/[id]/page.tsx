@@ -29,8 +29,8 @@ const PageId = async ({ params }: { params: Promise<{ id: string }> }) => {
 
   return (
     <>
-      <section className=" text-gray-100 px-6 pb-24">
-        <div className="mx-auto space-y-6">
+      <section className=" text-gray-100 pb-24">
+        <div className="space-y-6">
           <div className="bg-gradient-to-b from-neutral-900 to-neutral-800 p-8 rounded-xl shadow-md border border-gray-700">
             <h2 className="text-3xl font-bold text-indigo-400 mb-4 tracking-tight leading-tight">
               {res?.title}
