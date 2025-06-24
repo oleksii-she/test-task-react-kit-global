@@ -14,6 +14,7 @@ export const addBlogSchema = z.object({
     .string()
     .trim()
     .min(40, "The description should be more expanded")
+    .max(4000, "The description must contain at least 4000 characters")
     .refine((val) => val.replace(/\s/g, "").length >= 3, {
       message: "The description must contain at least 3 meaningful characters",
     }),
@@ -26,6 +27,7 @@ export const addCommentSchema = z.object({
     .trim()
     .min(3, "The NickName must contain at least 3 characters")
     .max(20, "The NickName must contain at least 20 characters")
+    .max(1000, "The text must contain at least 1000 characters")
     .refine((val) => val.replace(/\s/g, "").length >= 3, {
       message: "The author must contain at least 3 meaningful characters",
     }),
@@ -52,29 +54,8 @@ export const addCommentSchemaNoId = z.object({
     .string()
     .trim()
     .min(5, "The description should be more expanded")
+    .max(1000, "The text must contain at least 1000 characters")
     .refine((val) => val.replace(/\s/g, "").length >= 3, {
       message: "The text must contain at least 3 meaningful characters",
     }),
-});
-
-export const updateCommentSchema = z.object({
-  id: z.string(),
-  author: z
-    .string()
-    .trim()
-    .min(3)
-    .max(20, "The NickName must contain at least 20 characters")
-    .refine((val) => val.replace(/\s/g, "").length >= 3, {
-      message: "The author must contain at least 3 meaningful characters",
-    })
-    .optional(),
-
-  text: z
-    .string()
-    .trim()
-    .min(5)
-    .refine((val) => val.replace(/\s/g, "").length >= 3, {
-      message: "The text must contain at least 3 meaningful characters",
-    })
-    .optional(),
 });
