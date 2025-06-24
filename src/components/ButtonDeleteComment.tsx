@@ -13,18 +13,30 @@ export const ButtonDeleteComment = ({
   commentId: string;
   blogPostId: string;
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [toggle, setToggle] = useState(false);
   const [error, setError] = useState("");
   const dispatch = useAppDispatch();
 
   const handleDelete = async () => {
-    const res = await deleteCommentRoute({ blogPostId, commentId });
-    if (!res) {
-      setError("Oops error");
-    }
-    dispatch(deleteComment(commentId));
+    setIsLoading(true);
+    setError("");
 
-    setToggle(false);
+    try {
+      const res = await deleteCommentRoute({ blogPostId, commentId });
+      if (!res) {
+        setError("Oops error");
+        return;
+      }
+      dispatch(deleteComment(commentId));
+
+      setToggle(false);
+    } catch (err) {
+      console.error("Error during blog deletion:", err);
+      setError("An unexpected error occurred.");
+    } finally {
+      setIsLoading(false);
+    }
   };
   return (
     <div className="block">
@@ -38,6 +50,7 @@ export const ButtonDeleteComment = ({
 
         <Modal modalToggle={toggle} setModalToggle={setToggle}>
           <DeleteWarning
+            isLoading={isLoading}
             error={error}
             handleDelete={handleDelete}
             setToggle={setToggle}

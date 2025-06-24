@@ -7,24 +7,37 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { DeleteWarning } from "./DeleteWarning";
 export const DeleteBlogBtn = ({ id }: { id: string }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [toggle, setToggle] = useState(false);
   const [error, setError] = useState("");
   const dispatch = useAppDispatch();
   const router = useRouter();
 
   const handleDelete = async () => {
-    const res = await deleteBlogRoute(id);
-    if (!res) {
-      setError("Oops error");
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const res = await deleteBlogRoute(id);
+      if (!res) {
+        setError("Oops error");
+        return;
+      }
+      dispatch(deleteBlog(id));
+      router.back();
+      setToggle(false);
+    } catch (err) {
+      console.error("Error during blog deletion:", err);
+      setError("An unexpected error occurred.");
+    } finally {
+      setIsLoading(false);
     }
-    dispatch(deleteBlog(id));
-    router.back();
-    setToggle(false);
   };
   return (
     <div className="block">
       <div>
         <button
+          disabled={isLoading}
           className="flex items-center gap-2 bg-gradient-to-r from-red-500 to-pink-500 text-white  font-semibold py-2 px-4 rounded-lg shadow-md  hover:brightness-110 hover:scale-105 active:scale-95  transition duration-200 "
           onClick={() => setToggle(!toggle)}
         >
@@ -50,6 +63,7 @@ export const DeleteBlogBtn = ({ id }: { id: string }) => {
             error={error}
             handleDelete={handleDelete}
             setToggle={setToggle}
+            isLoading={isLoading}
           />
         </Modal>
       </div>
