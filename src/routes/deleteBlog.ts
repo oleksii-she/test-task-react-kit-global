@@ -1,3 +1,5 @@
+"use server";
+import { revalidatePath } from "next/cache";
 import { db } from "@/firebase/config";
 import { doc, deleteDoc } from "firebase/firestore";
 
@@ -6,6 +8,7 @@ export const deleteBlogRoute = async (id: string): Promise<string> => {
     const blogRef = doc(db, "blogs", id);
 
     await deleteDoc(blogRef);
+    revalidatePath("/");
     return "success";
   } catch (error: unknown) {
     if (error instanceof Error) {
