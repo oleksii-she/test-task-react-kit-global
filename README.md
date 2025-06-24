@@ -79,7 +79,7 @@ npm run start # Start production server
 npm run lint # Run ESLint checks
 ```
 
-### 7. 📌 Future Improvements
+### 📌 Future Improvements
 
 - 🔐 Add authentication and registration
 - 👤 Link each blog post to a specific registered user
