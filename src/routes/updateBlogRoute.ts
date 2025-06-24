@@ -1,3 +1,5 @@
+"use server";
+import { revalidatePath } from "next/cache";
 import { db } from "@/firebase/config";
 import { IBlog } from "@/types";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
@@ -25,7 +27,7 @@ export const updateBlogRoute = async (
       const newBlogData = newBlogSnapshot.data();
 
       const createdAtString = formatFireStoreTimestamp(newBlogData.createdAt);
-
+      revalidatePath(`/${blogRef.id}`);
       return {
         id: blogRef.id,
         title: newBlogData.title as string,

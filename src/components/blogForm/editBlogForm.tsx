@@ -107,7 +107,6 @@ export const EditBlogForm = ({
     setErrors({});
     setLoad(false);
     formRef.current?.reset();
-    router.back();
   };
 
   return (
