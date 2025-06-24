@@ -27,6 +27,7 @@ export const updateBlogRoute = async (
       const newBlogData = newBlogSnapshot.data();
 
       const createdAtString = formatFireStoreTimestamp(newBlogData.createdAt);
+
       revalidatePath(`/${blogRef.id}`);
       return {
         id: blogRef.id,
