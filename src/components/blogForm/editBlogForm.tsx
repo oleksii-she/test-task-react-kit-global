@@ -4,7 +4,6 @@ import { addBlogSchema } from "@/schemasValidation";
 import { useState, useRef, SetStateAction, useEffect } from "react";
 import { updateBlog } from "@/store/features/blogSlice";
 import { useAppDispatch } from "@/store/hooks";
-import { useRouter } from "next/navigation";
 import { updateBlogRoute } from "@/routes/updateBlogRoute";
 import { IBlog } from "@/types";
 import { Loader } from "../Loader/Loader";
@@ -27,7 +26,6 @@ export const EditBlogForm = ({
   const [error, setError] = useState("");
   const [load, setLoad] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
-  const router = useRouter();
   const dispatch = useAppDispatch();
   const [errors, setErrors] = useState<{
     title?: string;
