@@ -5,6 +5,7 @@ import { DeleteBlogBtn } from "@/components/ButtonDeleteBlog";
 import { SectionComments } from "@/components/sectionComments";
 import { getCommentsForPost } from "@/routes/commentsRoutes";
 import NotFound from "../not-found";
+
 export async function generateMetadata({
   params,
 }: {
@@ -26,7 +27,6 @@ const PageId = async ({ params }: { params: Promise<{ id: string }> }) => {
   const id = (await params).id;
   const res = await getBlogByIdRoute(id);
   const comments = await getCommentsForPost(id);
-  console.log(res, "res");
 
   if (!res) {
     return NotFound();

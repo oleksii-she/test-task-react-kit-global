@@ -17,6 +17,7 @@ export const EditBlogForm = ({
   data: IBlog | null;
   setModalToggle: React.Dispatch<SetStateAction<boolean>>;
 }) => {
+  const [disabled, setDisabled] = useState(true);
   const [initialState, setInitialState] = useState<IBlog>({
     id,
     title: "",
@@ -41,21 +42,39 @@ export const EditBlogForm = ({
     setInitialState(data);
   }, [data]);
 
+  const validate = (state: IBlog) => {
+    const result = addBlogSchema.safeParse(state);
+    if (!result.success) {
+      const formatted = result.error.format();
+      setErrors({
+        title: formatted.title?._errors?.[0] ?? "",
+        description: formatted.description?._errors?.[0] ?? "",
+      });
+      return false;
+    }
+    setErrors({
+      title: "",
+      description: "",
+    });
+    return true;
+  };
+
   const onChangeHandler = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
-    setInitialState((prevState) => {
-      if (!prevState) return prevState;
-      return {
-        ...prevState,
-        [name]: value,
-      };
+    setInitialState((prev) => {
+      const updated = { ...prev, [name]: value };
+
+      const valid = validate(updated);
+      setDisabled(!valid);
+      return updated;
     });
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setDisabled(true);
     const formData = new FormData(e.currentTarget);
     const data = {
       id: id,
@@ -133,8 +152,12 @@ export const EditBlogForm = ({
 
       <button
         type="submit"
-        className="cursor-pointer w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold
-               hover:bg-indigo-700 active:scale-95 transition-transform duration-150 shadow-lg"
+        disabled={disabled}
+        className={`px-4 py-2 rounded-lg transition-all duration-200 ${
+          disabled
+            ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+            : "bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
+        }`}
       >
         Edit Blog
       </button>

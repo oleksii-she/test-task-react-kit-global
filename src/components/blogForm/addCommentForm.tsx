@@ -48,6 +48,7 @@ export const CommentForm = ({ id }: { id: string }) => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setDisabled(true);
     const formData = new FormData(e.currentTarget);
     const data = {
       id,
@@ -56,6 +57,7 @@ export const CommentForm = ({ id }: { id: string }) => {
     };
 
     setLoad(true);
+
     const result = addCommentSchema.safeParse(data);
 
     if (!result.success) {
@@ -73,6 +75,7 @@ export const CommentForm = ({ id }: { id: string }) => {
     dispatch(addComment(res));
     setLoad(false);
     formRef.current?.reset();
+    setDisabled(true);
     setInitialState({
       author: "",
       text: "",

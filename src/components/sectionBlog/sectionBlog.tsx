@@ -28,7 +28,7 @@ export const SectionBlogs = ({ blogs }: { blogs: IBlog[] }) => {
     dispatch(sortBlogsDateFilter(value));
   };
 
-  if (items.length === 0) {
+  if (blogs.length === 0) {
     return (
       <h2 className="text-white text-center font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
         Write your blog ✍️
@@ -37,9 +37,12 @@ export const SectionBlogs = ({ blogs }: { blogs: IBlog[] }) => {
   }
   return (
     <section>
-      <div className="mb-5">
-        <Filter onChange={changeFilter} />
-      </div>
+      {blogsState.length !== 0 && (
+        <div className="mb-5">
+          <Filter onChange={changeFilter} />
+        </div>
+      )}
+
       <BlogList items={blogsState} />
     </section>
   );

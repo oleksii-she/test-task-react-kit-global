@@ -13,7 +13,7 @@ import {
 import { CommentEdit } from "./blogForm/editCommentForm";
 import { ButtonDeleteComment } from "./ButtonDeleteComment";
 import { updateCommentRoute } from "@/routes/commentsRoutes";
-import { addCommentSchema } from "@/schemasValidation";
+import { addCommentSchema, addCommentSchemaNoId } from "@/schemasValidation";
 import { Filter } from "./filter";
 
 export const SectionComments = ({
@@ -23,6 +23,7 @@ export const SectionComments = ({
   id: string;
   data: IComment[];
 }) => {
+  const [disabled, setDisabled] = useState(true);
   const [commentState, setCommentState] = useState<IComment[]>([]);
   const [updateState, setUpdateState] = useState<{
     [key: string]: { author: string; text: string };
@@ -34,23 +35,49 @@ export const SectionComments = ({
   });
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
 
+  const validate = (state: { author: string; text: string }) => {
+    const result = addCommentSchemaNoId.safeParse(state);
+    if (!result.success) {
+      const formatted = result.error.format();
+      setErrorFields({
+        author: formatted.author?._errors?.[0] ?? "",
+        text: formatted.text?._errors?.[0] ?? "",
+      });
+      return false;
+    }
+    setErrorFields({
+      author: "",
+      text: "",
+    });
+    return true;
+  };
+
   const onChangeHandler = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     commentId: string
   ) => {
     const { name, value } = e.target;
-    setUpdateState((prevState) => ({
-      ...prevState,
-      [commentId]: {
+    setUpdateState((prevState) => {
+      const updatedComment = {
         ...prevState[commentId],
         [name]: value,
-      },
-    }));
+      };
+
+      const updated = {
+        [commentId]: updatedComment,
+      };
+
+      const valid = validate(updated[commentId]);
+
+      setDisabled(!valid);
+
+      return updated;
+    });
   };
 
   const submitEditComment = async () => {
     if (!editingCommentId) return;
-
+    setDisabled(true);
     const updatedData = {
       id: editingCommentId,
       ...updateState[editingCommentId],
@@ -124,9 +151,11 @@ export const SectionComments = ({
 
         <CommentForm id={blogPostId} />
 
-        <div className="mb-5">
-          <Filter onChange={changFilter} />
-        </div>
+        {data.length !== 0 && (
+          <div className="mb-5">
+            <Filter onChange={changFilter} />
+          </div>
+        )}
 
         {commentState.length === 0 && (
           <h2 className="text-white text-center font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
@@ -225,7 +254,13 @@ export const SectionComments = ({
                       <button
                         type="button"
                         onClick={submitEditComment}
-                        className="inline-flex items-center gap-1 px-4 py-2 bg-gradient-to-tr from-emerald-500 to-emerald-600 text-white font-semibold text-sm rounded-full shadow-lg hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 active:scale-95"
+                        disabled={disabled}
+                        className={`inline-flex items-center gap-1 px-4 py-2 text-white font-semibold text-sm rounded-full
+    ${
+      disabled
+        ? "bg-emerald-400 cursor-not-allowed opacity-50"
+        : "bg-gradient-to-tr from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 active:scale-95 shadow-lg transition-all duration-200"
+    }`}
                       >
                         ✅ Confirm
                       </button>
