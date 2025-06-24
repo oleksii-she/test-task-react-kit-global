@@ -29,12 +29,18 @@ A simple blogging application built with **Next.js**, **React**, **Redux Toolkit
 ```bash
 git clone https://github.com/oleksii-she/test-task-react-kit-global.git
 cd blog-app
+```
 
 ### 2. Install dependencies
 
-npm install
+```bash
 
-### 3.  Set up Firebase environment variables
+npm install
+```
+
+### 3. Set up Firebase environment variables
+
+```bash
 
 NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
@@ -42,12 +48,16 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_bucket
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+```
 
 ### 4. Start the development server
 
-npm run dev
+```bash
 
-### 5.  Project Structure
+npm run dev
+```
+
+### 5. Project Structure
 
 src/
 /app -Next.js pages
@@ -61,25 +71,23 @@ src/
 
 ### 6. Available Scripts
 
-npm run dev      # Start development server
-npm run build    # Build the application
-npm run start    # Start production server
-npm run lint     # Run ESLint checks
+```bash
+
+npm run dev # Start development server
+npm run build # Build the application
+npm run start # Start production server
+npm run lint # Run ESLint checks
+```
 
 ### 7. 📌 Future Improvements
 
 - 🔐 Add authentication and registration
 - 👤 Link each blog post to a specific registered user
--🗑️ Allow users to delete their own posts
--📅 Display post creation and update timestamps
--💬 Enable commenting functionality
--🖼️ Add support for post images or cover photos
+  -🗑️ Allow users to delete their own posts
+  -📅 Display post creation and update timestamps
+  -💬 Enable commenting functionality
+  -🖼️ Add support for post images or cover photos
 
+### 📄 License
 
-
-
-
-📄 License
 This project is licensed under the MIT License.
-
-```
