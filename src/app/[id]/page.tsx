@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getBlogByIdRoute } from "@/routes/getBlogsRoute";
 import { EditBlogBtn } from "@/components/ButtonEditBlog";
 import { DeleteBlogBtn } from "@/components/ButtonDeleteBlog";
-import { SectionComments } from "@/components/SectionComponents/sectionComments";
+import { SectionComments } from "@/components/SectionComments/sectionComments";
 import { getCommentsForPost } from "@/routes/commentsRoutes";
 import NotFound from "../not-found";
 
