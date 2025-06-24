@@ -59,15 +59,17 @@ npm run dev
 
 ### 5. Project Structure
 
+```bash
 src/
-/app -Next.js pages
-/components -Reusable UI components
-/store -Redux store
-/store/features -Redux slice
-/schemasValidation.ts -schemas validation
-/StoreProvider.tsx -Component Provider page that envelops the main layout
-/types.ts -Types for rich use
-/utills.ts -utills
+├── app/ # Next.js app directory (routes, layouts, etc.)
+├── components/ # Reusable UI components
+├── store/ # Redux store configuration
+│ └── features/ # Redux slices
+├── schemasValidation.ts # Zod schemas for form validation
+├── StoreProvider.tsx # Redux provider wrapper for the app
+├── types.ts # Shared TypeScript types
+└── utils.ts # Utility functions
+```
 
 ### 6. Available Scripts
 
