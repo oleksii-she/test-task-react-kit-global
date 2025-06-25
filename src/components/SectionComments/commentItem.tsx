@@ -23,7 +23,7 @@ export const CommentItem = ({
 
   return (
     <li
-      className="p-4 border border-gray-700 rounded-lg bg-neutral-800"
+      className="p-4 border border-gray-700 rounded-lg bg-neutral-800 mb-4"
       key={commentId}
     >
       <article>

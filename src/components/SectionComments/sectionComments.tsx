@@ -144,7 +144,7 @@ export const SectionComments = ({
 
         <CommentForm id={blogPostId} />
 
-        {data.length !== 0 && (
+        {comments.length !== 0 && (
           <div className="mb-5">
             <Filter onChange={changFilter} />
           </div>
