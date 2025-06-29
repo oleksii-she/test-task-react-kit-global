@@ -1,5 +1,5 @@
-import { BlogItem } from "./BlogItem";
-import { IBlog } from "@/types";
+import { BlogItem } from './BlogItem';
+import { IBlog } from '@/types/types';
 
 interface BlogListProps {
   items: IBlog[];

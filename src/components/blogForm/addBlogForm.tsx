@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { addBlogSchema } from "@/schemasValidation";
-import { useState, useRef, SetStateAction } from "react";
-import { addBlog } from "@/store/features/blogSlice";
-import { useAppDispatch } from "@/store/hooks";
-import { nanoid } from "nanoid";
-import { addBlogRoute } from "@/routes/addBlogRoute";
-import { Loader } from "../Loader/Loader";
-import { IBlog } from "@/types";
+import { addBlogSchema } from '@/schemasValidation';
+import { useState, useRef, SetStateAction } from 'react';
+import { addBlog } from '@/store/features/blogSlice';
+import { useAppDispatch } from '@/store/hooks';
+import { nanoid } from 'nanoid';
+import { addBlogRoute } from '@/routes/addBlogRoute';
+import { Loader } from '../Loader/Loader';
+import { IBlog } from '@/types/types';
 
 export const AddBlogForm = ({
   setModalToggle,
@@ -16,8 +16,8 @@ export const AddBlogForm = ({
 }) => {
   const [initialState, setInitialState] = useState({
     id: `${nanoid()}`,
-    title: "",
-    description: "",
+    title: '',
+    description: '',
   });
   const [disabled, setDisabled] = useState(true);
   const [errors, setErrors] = useState<{
@@ -32,8 +32,8 @@ export const AddBlogForm = ({
   const clearState = () => {
     setInitialState({
       id: `${nanoid()}`,
-      title: "",
-      description: "",
+      title: '',
+      description: '',
     });
   };
 
@@ -51,12 +51,8 @@ export const AddBlogForm = ({
     return true;
   };
 
-  const onChangeHandler = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    const spaceCount = (value.match(/\s/g) || []).length;
-    console.log(spaceCount);
 
     setInitialState((prev) => {
       const updated = { ...prev, [name]: value };
@@ -68,6 +64,7 @@ export const AddBlogForm = ({
   };
 
   const dispatch = useAppDispatch();
+  console.log(initialState, 'initialState');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -81,20 +78,36 @@ export const AddBlogForm = ({
       return;
     }
 
-    const res = await addBlogRoute(initialState);
+    try {
+      const res = await addBlogRoute(initialState);
 
-    if (!res) {
-      setErrors({
-        other: "Error on the server, try later",
-      });
+      if (!res) {
+        setErrors({
+          other: 'Error on the server, try later',
+        });
+      }
+
+      dispatch(addBlog(res));
+      setLoad(false);
+      setErrors({});
+      formRef.current?.reset();
+      setModalToggle(false);
+      clearState();
+    } catch (err: unknown) {
+      console.error('Error during blog deletion:', err);
+
+      if (err instanceof Error) {
+        setErrors({
+          other: err.message,
+        });
+      } else {
+        setErrors({
+          other: 'Unknown error occurred during deletion.',
+        });
+      }
+    } finally {
+      setLoad(false);
     }
-
-    dispatch(addBlog(res));
-    setLoad(false);
-    setErrors({});
-    formRef.current?.reset();
-    setModalToggle(false);
-    clearState();
   };
 
   return (
@@ -104,7 +117,7 @@ export const AddBlogForm = ({
       className="mx-auto p-8 rounded-2xl bg-gradient-to-br from-gray-900 via-black to-gray-800 shadow-xl space-y-6"
     >
       {load && <Loader />}
-      <div>
+      <div className="relative">
         <input
           name="title"
           value={initialState.title}
@@ -115,13 +128,13 @@ export const AddBlogForm = ({
                  placeholder-gray-500 transition duration-300"
         />
         {errors.title && (
-          <label className="text-red-400 text-sm mt-1 block">
+          <label className="absolute bottom[-5px] text-red-400 text-sm mt-1 block">
             {errors.title}
           </label>
         )}
       </div>
 
-      <div>
+      <div className="relative">
         <textarea
           name="description"
           value={initialState.description}
@@ -132,26 +145,28 @@ export const AddBlogForm = ({
                  placeholder-gray-500 transition duration-300"
         />
         {errors.description && (
-          <p className="text-red-400 text-sm mt-1">{errors.description}</p>
+          <p className="absolute bottom[-5px] text-red-400 text-sm mt-1">{errors.description}</p>
         )}
       </div>
-      {errors.other && (
-        <label className="text-red-400 text-sm mt-1 block">
-          {errors.other}
-        </label>
-      )}
 
-      <button
-        type="submit"
-        disabled={disabled}
-        className={`px-4 py-2 rounded-lg transition-all duration-200 ${
-          disabled
-            ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-            : "bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
-        }`}
-      >
-        Add Blog
-      </button>
+      <div className="relative">
+        <button
+          type="submit"
+          disabled={disabled}
+          className={`px-4 py-2 rounded-lg transition-all duration-200 ${
+            disabled
+              ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
+              : 'bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer'
+          }`}
+        >
+          Add Blog
+        </button>
+        {errors.other && (
+          <label className="absolute bottom[-5px] text-red-400 text-sm mt-1 block">
+            {errors.other}
+          </label>
+        )}
+      </div>
     </form>
   );
 };

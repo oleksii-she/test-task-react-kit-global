@@ -1,5 +1,5 @@
-import { IBlog } from "@/types";
-import Link from "next/link";
+import { IBlog } from '@/types/types';
+import Link from 'next/link';
 
 export const BlogItem = ({ id, title, description }: IBlog) => {
   return (
@@ -13,7 +13,7 @@ export const BlogItem = ({ id, title, description }: IBlog) => {
         href={`/${id}`}
         className="inline-block text-sm text-indigo-300 hover:text-white font-medium transition"
       >
-        Читати далі →
+        Read more →
       </Link>
     </li>
   );

@@ -1,7 +1,7 @@
-"use client";
-import { Modal } from "./modal/modal";
-import { AddBlogForm } from "./blogForm/addBlogForm";
-import { useState } from "react";
+'use client';
+import { Modal } from './modal/modal';
+import { AddBlogForm } from './blogForm/addBlogForm';
+import { useState } from 'react';
 export const AddBlog = () => {
   const [toggle, setToggle] = useState(false);
 
@@ -9,10 +9,10 @@ export const AddBlog = () => {
     <div className="block">
       <div>
         <button
-          className="text-xl sm:text-1xl md:text-3xl  cursor-pointer bg-gradient-to-r from-blue-400 to-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:from-blue-500 hover:to-blue-700 hover:scale-105 transition-transform duration-300"
+          className="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition"
           onClick={() => setToggle(!toggle)}
         >
-          Add blog
+          ➕ Add Blog
         </button>
 
         <Modal closeIcon={true} modalToggle={toggle} setModalToggle={setToggle}>

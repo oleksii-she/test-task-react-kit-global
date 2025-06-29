@@ -1,12 +1,16 @@
-import { SetStateAction } from "react";
+import { SetStateAction } from 'react';
 export interface IBlog {
   id: string;
+  userId?: string;
+  name?: string;
   title: string;
   description: string;
   createdAt?: string;
 }
+
 export interface IComment {
   id: string;
+  userId?: string;
   author?: string;
   text?: string;
   createdAt?: string;
@@ -17,20 +21,17 @@ type CommonEditProps = {
   setEditingCommentId: React.Dispatch<SetStateAction<string | null>>;
   updateState: {
     [key: string]: {
-      author: string;
       text: string;
     };
   };
   setUpdateState: React.Dispatch<
     SetStateAction<{
       [key: string]: {
-        author: string;
         text: string;
       };
     }>
   >;
   errorFields: {
-    author: string;
     text: string;
   };
   submitEditComment: () => Promise<void>;
@@ -50,3 +51,30 @@ export type ICommentItemProps = CommonEditProps & {
 export type ICommentsListProps = CommonEditProps & {
   comments: IComment[];
 };
+
+export interface ILogin {
+  email: string;
+  password: string;
+}
+export interface IRegistration {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export interface IProfile {
+  id: string;
+  name: string;
+  avatar: string;
+  description?: string;
+  contacts?: {
+    phone?: string;
+    email?: string;
+    twitter: string;
+    linkedIn?: string;
+    telegram?: string;
+  };
+  showContacts: boolean;
+  createdAt?: string;
+}

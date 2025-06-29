@@ -1,4 +1,6 @@
-import { db } from "@/firebase/config";
+'use server';
+
+import { db } from '@/firebase/config';
 import {
   collection,
   addDoc,
@@ -10,95 +12,100 @@ import {
   deleteDoc,
   doc,
   updateDoc,
-} from "firebase/firestore";
-import { formatFireStoreTimestamp } from "@/utills";
-import { IComment } from "@/types";
+} from 'firebase/firestore';
+import { formatFireStoreTimestamp } from '@/utils/utills';
+import { IComment, IProfile } from '@/types/types';
+import { userIdentification } from '@/utils/authHelpers';
+import { getUserId } from './getUserId';
+
 export const addCommentRoute = async ({
   id,
-  author,
   text,
 }: {
   id: string;
-  author: string;
+
   text: string;
 }): Promise<IComment> => {
   try {
-    const commentsCollectionRef = collection(db, "blogs", id, "comments");
+    const currentUser = await userIdentification();
+    const commentsCollectionRef = collection(db, 'blogs', id, 'comments');
 
     const docRef = await addDoc(commentsCollectionRef, {
-      author,
       text,
+      userId: currentUser,
       createdAt: serverTimestamp(),
     });
 
     const newCommentSnapshot = await getDoc(docRef);
+    const data: IProfile | null = await getUserId(currentUser);
+
+    if (!data) {
+      throw new Error('Could not get the username.');
+    }
 
     if (newCommentSnapshot.exists()) {
       const newCommentData = newCommentSnapshot.data();
 
-      const createdAtString = formatFireStoreTimestamp(
-        newCommentData.createdAt
-      );
-
-      const finalAuthor = newCommentData.author as string;
-      const finalText = newCommentData.text as string;
+      const createdAtString = formatFireStoreTimestamp(newCommentData.createdAt);
 
       return {
         id: docRef.id,
-        author: finalAuthor,
-        text: finalText,
+        userId: newCommentData.userId,
+        author: data.name,
+        text: newCommentData.text,
         createdAt: createdAtString,
       };
     } else {
-      throw new Error("comment is not found in Firestore.");
+      throw new Error('comment is not found in Firestore.');
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("error add comment:", error.message);
+      console.error('error add comment:', error.message);
     } else {
-      console.error("unknown comments error:", error);
+      console.error('unknown comments error:', error);
     }
     throw error;
   }
 };
 
-export const getCommentsForPost = async (
-  blogPostId: string
-): Promise<IComment[]> => {
+export const getCommentsForPost = async (blogPostId: string): Promise<IComment[]> => {
   try {
-    const commentsCollectionRef = collection(
-      db,
-      "blogs",
-      blogPostId,
-      "comments"
-    );
+    const commentsCollectionRef = collection(db, 'blogs', blogPostId, 'comments');
 
-    const q = query(commentsCollectionRef, orderBy("createdAt", "desc"));
+    const q = query(commentsCollectionRef, orderBy('createdAt', 'desc'));
 
     const querySnapshot = await getDocs(q);
 
-    const comments = querySnapshot.docs.map((doc) => {
+    const commentsPromises = querySnapshot.docs.map(async (doc) => {
       const data = doc.data();
       const createdAtString = formatFireStoreTimestamp(data.createdAt);
+      let userName;
+      if (data.userId) {
+        const userData: IProfile | null = await getUserId(data.userId);
+        userName = userData?.name ?? '';
+      }
 
       return {
         id: doc.id,
-        author: data.author ?? "",
-        text: data.text ?? "",
+        author: userName ?? '',
+        userId: data.userId,
+        text: data.text ?? '',
         createdAt: createdAtString,
       };
     });
 
+    const comments: IComment[] = await Promise.all(commentsPromises);
     return comments;
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("error get comment:", error.message);
+      console.error('error get comment:', error.message);
     } else {
-      console.error("unknown comments error:", error);
+      console.error('unknown comments error:', error);
     }
     throw error;
   }
 };
+
 export const deleteCommentRoute = async ({
   blogPostId,
   commentId,
@@ -107,16 +114,30 @@ export const deleteCommentRoute = async ({
   commentId: string;
 }) => {
   try {
-    const commentDocRef = doc(db, "blogs", blogPostId, "comments", commentId);
+    const currentUserId = await userIdentification();
+
+    const commentDocRef = doc(db, 'blogs', blogPostId, 'comments', commentId);
+
+    const commentSnap = await getDoc(commentDocRef);
+
+    if (!commentSnap.exists()) {
+      throw new Error('The Comment was not found.');
+    }
+
+    const blogData = commentSnap.data() as IComment;
+
+    if (blogData.userId !== currentUserId) {
+      throw new Error('Insufficient rights to delete this comment');
+    }
 
     await deleteDoc(commentDocRef);
 
     return true;
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("error delete comment:", error.message);
+      console.error('error delete comment:', error.message);
     } else {
-      console.error("unknown comments error:", error);
+      console.error('unknown comments error:', error);
     }
     throw error;
   }
@@ -137,13 +158,20 @@ export const updateCommentRoute = async ({
   updates: CommentUpdateData;
 }): Promise<IComment | undefined> => {
   try {
-    const commentDocRef = doc(
-      db,
-      "blogs",
-      blogPostId,
-      "comments",
-      editingCommentId
-    );
+    const currentUserId = await userIdentification();
+    const commentDocRef = doc(db, 'blogs', blogPostId, 'comments', editingCommentId);
+
+    const commentSnap = await getDoc(commentDocRef);
+
+    if (!commentSnap.exists()) {
+      throw new Error('The Comment was not found.');
+    }
+
+    const blogData = commentSnap.data() as IComment;
+
+    if (blogData.userId !== currentUserId) {
+      throw new Error('Insufficient rights to delete this comment');
+    }
 
     const dataToUpdate = {
       ...updates,
@@ -157,25 +185,28 @@ export const updateCommentRoute = async ({
     if (newCommentSnapshot.exists()) {
       const newCommentData = newCommentSnapshot.data();
 
-      const createdAtString = formatFireStoreTimestamp(
-        newCommentData.createdAt
-      );
+      const createdAtString = formatFireStoreTimestamp(newCommentData.createdAt);
 
-      const finalAuthor = newCommentData.author as string;
-      const finalText = newCommentData.text as string;
+      let userName;
+
+      if (newCommentData.userId) {
+        const userData: IProfile | null = await getUserId(newCommentData.userId);
+        userName = userData?.name ?? '';
+      }
 
       return {
         id: commentDocRef.id,
-        author: finalAuthor,
-        text: finalText,
+        userId: newCommentData.userId,
+        author: userName,
+        text: newCommentData.text,
         createdAt: createdAtString,
       };
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("comment update error:", error.message);
+      console.error('comment update error:', error.message);
     } else {
-      console.error("unknown error:", error);
+      console.error('unknown error:', error);
     }
     throw error;
   }

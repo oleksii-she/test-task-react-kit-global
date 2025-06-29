@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useEffect, useRef } from "react";
-import { BlogList } from "../blogList/BlogList";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { getBlogsApi } from "@/store/features/blogSlice";
-import { IBlog } from "@/types";
+import { useEffect, useRef } from 'react';
+import { BlogList } from '../blogList/BlogList';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { getBlogsApi } from '@/store/features/blogSlice';
+import { IBlog } from '@/types/types';
 
 export const SectionBlogs = ({ blogs }: { blogs: IBlog[] }) => {
   const dispatch = useAppDispatch();

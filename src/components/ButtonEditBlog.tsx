@@ -1,17 +1,11 @@
-"use client";
+'use client';
 
-import { Modal } from "./modal/modal";
-import { EditBlogForm } from "./blogForm/editBlogForm";
-import { useState } from "react";
-import { IBlog } from "@/types";
+import { Modal } from './modal/modal';
+import { EditBlogForm } from './blogForm/editBlogForm';
+import { useState } from 'react';
+import { IBlog } from '@/types/types';
 
-export const EditBlogBtn = ({
-  data,
-  id,
-}: {
-  data: IBlog | null;
-  id: string;
-}) => {
+export const EditBlogBtn = ({ data, id }: { data: IBlog | null; id: string }) => {
   const [toggle, setToggle] = useState(false);
 
   return (
