@@ -13,6 +13,7 @@ A simple blogging application built with **Next.js**, **React**, **Redux Toolkit
 - [nanoid](https://github.com/ai/nanoid) – unique ID generator
 - [TypeScript](https://www.typescriptlang.org/)
 - [React Spinners](https://www.davidhu.io/react-spinners/) – loading indicators
+- [NextAuth] - user authorization
 
 ## 🚀 Features
 
@@ -20,7 +21,7 @@ A simple blogging application built with **Next.js**, **React**, **Redux Toolkit
 - ✏️ Edit existing blog posts
 - ⏳ Loading indicators for asynchronous actions
 - 💾 Data stored in Firebase Realtime Database
-- ❌ No authentication or user-post association (yet)
+- ❌ Can't recover password, can't log in with Google account
 
 ## 🛠️ Getting Started
 
@@ -83,11 +84,7 @@ npm run lint # Run ESLint checks
 
 ### 📌 Future Improvements
 
-- 🔐 Add authentication and registration
-- 👤 Link each blog post to a specific registered user
-  -🗑️ Allow users to delete their own posts
-  -📅 Display post creation and update timestamps
-  -💬 Enable commenting functionality
+- 🔐 Work on voterization, make it possible to restore the password, as well as log in with Google
   -🖼️ Add support for post images or cover photos
 
 ### 📄 License
