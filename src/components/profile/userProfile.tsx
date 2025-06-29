@@ -4,6 +4,7 @@ import { ButtonSignOut } from '../ButtonSignOut';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AddBlog } from '../ButtonAddBlog';
+
 export const ProfileUser = ({ data }: { data: IProfile }) => {
   return (
     <div className="">
@@ -27,7 +28,6 @@ export const ProfileUser = ({ data }: { data: IProfile }) => {
             {data.description || 'Автор статей про технології, культуру та майбутнє.'}
           </p>
 
-          {/* Соцмережі */}
           <div className="flex space-x-4 mt-3">
             <Link href="#" className="text-amber-500 hover:underline font-medium">
               Twitter
@@ -43,7 +43,6 @@ export const ProfileUser = ({ data }: { data: IProfile }) => {
         <ButtonSignOut />
       </div>
 
-      {/* Біо / Цитата */}
       <p className="italic text-gray-300 mt-6">
         Пишу про те, як змінюється світ — і як залишатися людиною серед цих змін.
       </p>
@@ -51,32 +50,6 @@ export const ProfileUser = ({ data }: { data: IProfile }) => {
       <div className="mt-10">
         <div className="flex justify-end mb-4">
           <AddBlog />
-        </div>
-      </div>
-      {/* Статті */}
-      <div className="mt-10">
-        <h2 className="text-2xl font-semibold mb-4">Останні статті</h2>
-
-        {/* Можна замінити на map(data.articles) */}
-        <div className="bg-neutral-800 hover:bg-neutral-700 transition p-5 rounded-lg border border-gray-700 mb-4">
-          <h3 className="text-lg font-semibold text-indigo-400">
-            📱 Як штучний інтелект змінює наші смартфони
-          </h3>
-          <p className="text-sm text-gray-400 mt-1">Опубліковано: 20 червня 2025</p>
-        </div>
-
-        <div className="bg-neutral-800 hover:bg-neutral-700 transition p-5 rounded-lg border border-gray-700 mb-4">
-          <h3 className="text-lg font-semibold text-indigo-400">
-            🌍 Українські стартапи, які вражають світ
-          </h3>
-          <p className="text-sm text-gray-400 mt-1">Опубліковано: 10 червня 2025</p>
-        </div>
-
-        <div className="bg-neutral-800 hover:bg-neutral-700 transition p-5 rounded-lg border border-gray-700">
-          <h3 className="text-lg font-semibold text-indigo-400">
-            🎙️ Технології та культура: подкасти, які варто слухати
-          </h3>
-          <p className="text-sm text-gray-400 mt-1">Опубліковано: 30 травня 2025</p>
         </div>
       </div>
     </div>

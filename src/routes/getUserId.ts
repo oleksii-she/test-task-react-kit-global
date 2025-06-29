@@ -35,7 +35,6 @@ export const getUserId = async (userId: string): Promise<IProfile | null> => {
 
       return profile;
     } else {
-      console.log(`User with ID: ${userId} not found`);
       return null;
     }
   } catch (error: unknown) {

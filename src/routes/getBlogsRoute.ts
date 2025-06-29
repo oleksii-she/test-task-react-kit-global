@@ -1,8 +1,9 @@
 import { db } from '@/firebase/config';
-import { doc, getDoc, collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, orderBy, query, where } from 'firebase/firestore';
 import { IBlog } from '@/types/types';
 import { formatFireStoreTimestamp } from '@/utils/utills';
 import { getUserId } from './getUserId';
+
 export const getBlogsRoute = async (): Promise<IBlog[]> => {
   try {
     const q = query(collection(db, 'blogs'), orderBy('createdAt', 'desc'));
@@ -33,6 +34,40 @@ export const getBlogsRoute = async (): Promise<IBlog[]> => {
   }
 };
 
+export const getBlogsByUserId = async (userId: string): Promise<IBlog[]> => {
+  try {
+    const q = query(collection(db, 'blogs'), where('userId', '==', userId));
+    const querySnapshot = await getDocs(q);
+
+    const rawBlogs = querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        userId: data.userId ?? '',
+        title: data.title,
+        description: data.description,
+        createdAt: data.createdAt,
+      };
+    });
+
+    rawBlogs.sort((a, b) => b.createdAt.toDate().getTime() - a.createdAt.toDate().getTime());
+
+    const blogs: IBlog[] = rawBlogs.map((blog) => ({
+      ...blog,
+      createdAt: formatFireStoreTimestamp(blog.createdAt),
+    }));
+
+    return blogs;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('get blogs by userId error:', error.message);
+    } else {
+      console.error('unknown error:', error);
+    }
+    throw error;
+  }
+};
+
 export const getBlogByIdRoute = async (id: string): Promise<IBlog | null> => {
   try {
     const docRef = doc(db, 'blogs', id);
@@ -53,7 +88,6 @@ export const getBlogByIdRoute = async (id: string): Promise<IBlog | null> => {
         createdAt: createdAtString,
       } as IBlog;
     } else {
-      console.log(`Блог з ID: ${id} не знайдено.`);
       return null;
     }
   } catch (error: unknown) {

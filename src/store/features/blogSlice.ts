@@ -45,8 +45,6 @@ export const Blog = createSlice({
           return dateB - dateA;
         });
 
-        console.log(sortedNewest, 'sortedNewest');
-
         state.blogs = sortedNewest;
       } else {
         const sortedOld = [...state.blogs].sort((a, b) => {

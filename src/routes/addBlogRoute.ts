@@ -5,6 +5,7 @@ import { collection, doc, setDoc, getDoc } from 'firebase/firestore';
 import { formatFireStoreTimestamp } from '@/utils/utills';
 import { IBlog } from '@/types/types';
 import { userIdentification } from '@/utils/authHelpers';
+import { revalidatePath } from 'next/cache';
 
 export const addBlogRoute = async ({
   id,
@@ -33,7 +34,7 @@ export const addBlogRoute = async ({
       const newBlogData = newBlogSnapshot.data();
 
       const createdAtString = formatFireStoreTimestamp(newBlogData.createdAt);
-
+      revalidatePath('/profile');
       return {
         id: docRef.id,
         userId: newBlogData.userId,
