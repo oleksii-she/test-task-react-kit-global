@@ -1,5 +1,5 @@
-import { ICommentsListProps } from "@/types";
-import { CommentItem } from "./commentItem";
+import { ICommentsListProps } from '@/types/types';
+import { CommentItem } from './commentItem';
 
 export const CommentsList = ({
   comments,

@@ -11,8 +11,10 @@
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
     "firebase": "^11.9.1",
+    "firebase-admin": "^13.4.0",
     "nanoid": "^5.1.5",
     "next": "15.3.4",
+    "next-auth": "^4.24.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-redux": "^9.2.0",

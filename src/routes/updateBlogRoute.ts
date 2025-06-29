@@ -1,9 +1,9 @@
-"use server";
-import { revalidatePath } from "next/cache";
-import { db } from "@/firebase/config";
-import { IBlog } from "@/types";
-import { doc, updateDoc, getDoc } from "firebase/firestore";
-import { formatFireStoreTimestamp } from "@/utills";
+'use server';
+import { revalidatePath } from 'next/cache';
+import { db } from '@/firebase/config';
+import { IBlog } from '@/types/types';
+import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { formatFireStoreTimestamp } from '@/utils/utills';
 interface IUpdateBlogData {
   title?: string;
   description?: string;
@@ -14,7 +14,7 @@ export const updateBlogRoute = async (
   dataToUpdate: IUpdateBlogData
 ): Promise<IBlog> => {
   try {
-    const blogRef = doc(db, "blogs", id);
+    const blogRef = doc(db, 'blogs', id);
 
     const updatePayload = {
       ...dataToUpdate,
@@ -36,11 +36,11 @@ export const updateBlogRoute = async (
         createdAt: createdAtString,
       };
     } else {
-      throw new Error("Just added/Updated Blog was not found in Firestore.");
+      throw new Error('Just added/Updated Blog was not found in Firestore.');
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      if (error.message.includes("document does not exist")) {
+      if (error.message.includes('document does not exist')) {
         console.error(`Id:  ${id} not found.`, error.message);
       } else {
         console.error(`error update ${id}:`, error.message);

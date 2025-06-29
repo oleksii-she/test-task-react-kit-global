@@ -1,6 +1,11 @@
-import { db } from "@/firebase/config";
-import { collection, doc, setDoc, getDoc } from "firebase/firestore";
-import { formatFireStoreTimestamp } from "@/utills";
+'use server';
+
+import { db } from '@/firebase/config';
+import { collection, doc, setDoc, getDoc } from 'firebase/firestore';
+import { formatFireStoreTimestamp } from '@/utils/utills';
+import { IBlog } from '@/types/types';
+import { userIdentification } from '@/utils/authHelpers';
+
 export const addBlogRoute = async ({
   id,
   title,
@@ -9,12 +14,15 @@ export const addBlogRoute = async ({
   id: string;
   title: string;
   description: string;
-}) => {
+}): Promise<IBlog> => {
   try {
-    const docRef = doc(collection(db, "blogs"), id);
+    const currentUser = await userIdentification();
+
+    const docRef = doc(collection(db, 'blogs'), id);
 
     await setDoc(docRef, {
       title,
+      userId: currentUser,
       description,
       createdAt: new Date(),
     });
@@ -28,18 +36,19 @@ export const addBlogRoute = async ({
 
       return {
         id: docRef.id,
-        title: newBlogData.title as string,
+        userId: newBlogData.userId,
+        title: newBlogData.title,
         description: newBlogData.description as string,
         createdAt: createdAtString,
       };
     } else {
-      throw new Error("Just added/Updated Blog was not found in Firestore.");
+      throw new Error('Just added/Updated Blog was not found in Firestore.');
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("error:", error.message);
+      console.error('error:', error.message);
     } else {
-      console.error("unknown error:", error);
+      console.error('unknown error:', error);
     }
     throw error;
   }

@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { addBlogSchema } from "@/schemasValidation";
-import { useState, useRef, SetStateAction, useEffect } from "react";
-import { updateBlog } from "@/store/features/blogSlice";
-import { useAppDispatch } from "@/store/hooks";
-import { updateBlogRoute } from "@/routes/updateBlogRoute";
-import { IBlog } from "@/types";
-import { Loader } from "../Loader/Loader";
+import { addBlogSchema } from '@/schemasValidation';
+import { useState, useRef, SetStateAction, useEffect } from 'react';
+import { updateBlog } from '@/store/features/blogSlice';
+import { useAppDispatch } from '@/store/hooks';
+import { updateBlogRoute } from '@/routes/updateBlogRoute';
+import { IBlog } from '@/types/types';
+import { Loader } from '../Loader/Loader';
 export const EditBlogForm = ({
   id,
   data,
@@ -19,11 +19,11 @@ export const EditBlogForm = ({
   const [disabled, setDisabled] = useState(true);
   const [initialState, setInitialState] = useState<IBlog>({
     id,
-    title: "",
-    description: "",
+    title: '',
+    description: '',
   });
 
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [load, setLoad] = useState(false);
   const formRef = useRef<HTMLFormElement | null>(null);
   const dispatch = useAppDispatch();
@@ -34,7 +34,7 @@ export const EditBlogForm = ({
 
   useEffect(() => {
     if (!data) {
-      setError("Data not found");
+      setError('Data not found');
       return;
     }
     setInitialState(data);
@@ -45,21 +45,19 @@ export const EditBlogForm = ({
     if (!result.success) {
       const formatted = result.error.format();
       setErrors({
-        title: formatted.title?._errors?.[0] ?? "",
-        description: formatted.description?._errors?.[0] ?? "",
+        title: formatted.title?._errors?.[0] ?? '',
+        description: formatted.description?._errors?.[0] ?? '',
       });
       return false;
     }
     setErrors({
-      title: "",
-      description: "",
+      title: '',
+      description: '',
     });
     return true;
   };
 
-  const onChangeHandler = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const onChangeHandler = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setInitialState((prev) => {
       const updated = { ...prev, [name]: value };
@@ -76,8 +74,8 @@ export const EditBlogForm = ({
     const formData = new FormData(e.currentTarget);
     const data = {
       id: id,
-      title: formData.get("title"),
-      description: formData.get("description"),
+      title: formData.get('title'),
+      description: formData.get('description'),
     };
 
     const result = addBlogSchema.safeParse(data);
@@ -97,7 +95,7 @@ export const EditBlogForm = ({
 
     if (!newData) {
       setLoad(false);
-      return setError("error update");
+      return setError('error update');
     }
 
     dispatch(updateBlog(newData));
@@ -125,11 +123,7 @@ export const EditBlogForm = ({
                  focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500
                  placeholder-gray-500 transition duration-300"
         />
-        {errors.title && (
-          <label className="text-red-400 text-sm mt-1 block">
-            {errors.title}
-          </label>
-        )}
+        {errors.title && <label className="text-red-400 text-sm mt-1 block">{errors.title}</label>}
       </div>
 
       <div>
@@ -142,9 +136,7 @@ export const EditBlogForm = ({
                  focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:border-indigo-500
                  placeholder-gray-500 transition duration-300"
         />
-        {errors.description && (
-          <p className="text-red-400 text-sm mt-1">{errors.description}</p>
-        )}
+        {errors.description && <p className="text-red-400 text-sm mt-1">{errors.description}</p>}
       </div>
 
       <button
@@ -152,8 +144,8 @@ export const EditBlogForm = ({
         disabled={disabled}
         className={`px-4 py-2 rounded-lg transition-all duration-200 ${
           disabled
-            ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-            : "bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
+            ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
+            : 'bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer'
         }`}
       >
         Edit Blog

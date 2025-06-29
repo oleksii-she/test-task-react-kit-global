@@ -31,9 +31,13 @@ export const ButtonDeleteComment = ({
       dispatch(deleteComment(commentId));
 
       setToggle(false);
-    } catch (err) {
-      console.error("Error during blog deletion:", err);
-      setError("An unexpected error occurred.");
+    } catch (err: unknown) {
+      if (err instanceof Error) { 
+        setError(err.message);
+      } else {
+        setError("Unknown error occurred during deletion.");
+        
+      }
     } finally {
       setIsLoading(false);
     }

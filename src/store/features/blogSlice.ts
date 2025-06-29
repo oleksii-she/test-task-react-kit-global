@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IBlog, IComment } from "@/types";
-import { parseDate } from "@/utills";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { IBlog, IComment } from '@/types/types';
+import { parseDate } from '@/utils/utills';
 
 interface IState {
   loading: boolean;
@@ -12,12 +12,12 @@ interface IState {
 const initialState: IState = {
   loading: false,
   blogs: [],
-  commentCollectionId: "",
+  commentCollectionId: '',
   comments: [],
 };
 
 export const Blog = createSlice({
-  name: "blog",
+  name: 'blog',
   initialState,
   reducers: {
     addBlog: (state, action: PayloadAction<IBlog>) => {
@@ -27,30 +27,25 @@ export const Blog = createSlice({
       state.blogs = state.blogs.filter((blog) => blog.id !== action.payload);
     },
     getBlogsApi: (state, action: PayloadAction<IBlog[]>) => {
-      state.blogs = action.payload;
+      state.blogs = action.payload ?? [];
     },
 
     updateBlog: (state, action: PayloadAction<IBlog>) => {
-      const index = state.blogs.findIndex(
-        (blog) => blog.id === action.payload.id
-      );
+      const index = state.blogs.findIndex((blog) => blog.id === action.payload.id);
       if (index !== -1) {
         state.blogs[index] = action.payload;
       }
     },
 
-    sortBlogsDateFilter: (
-      state,
-      action: PayloadAction<"oldest" | "newest">
-    ) => {
-      if (action.payload === "newest") {
+    sortBlogsDateFilter: (state, action: PayloadAction<'oldest' | 'newest'>) => {
+      if (action.payload === 'newest') {
         const sortedNewest = [...state.blogs].sort((a, b) => {
           const dateA = a.createdAt ? parseDate(a.createdAt).getTime() : 0;
           const dateB = b.createdAt ? parseDate(b.createdAt).getTime() : 0;
           return dateB - dateA;
         });
 
-        console.log(sortedNewest, "sortedNewest");
+        console.log(sortedNewest, 'sortedNewest');
 
         state.blogs = sortedNewest;
       } else {
@@ -80,18 +75,11 @@ export const Blog = createSlice({
       state.comments.unshift(action.payload);
     },
     deleteComment: (state, action: PayloadAction<string>) => {
-      state.comments = state.comments.filter(
-        (blog) => blog.id !== action.payload
-      );
+      state.comments = state.comments.filter((blog) => blog.id !== action.payload);
     },
 
-    updateComment: (
-      state,
-      action: PayloadAction<Partial<IComment> & { id: string }>
-    ) => {
-      const index = state.comments.findIndex(
-        (comment) => comment.id === action.payload.id
-      );
+    updateComment: (state, action: PayloadAction<Partial<IComment> & { id: string }>) => {
+      const index = state.comments.findIndex((comment) => comment.id === action.payload.id);
 
       if (index !== -1) {
         state.comments[index] = {
@@ -101,11 +89,8 @@ export const Blog = createSlice({
       }
     },
 
-    sortCommentsDateFilter: (
-      state,
-      action: PayloadAction<"oldest" | "newest">
-    ) => {
-      if (action.payload === "newest") {
+    sortCommentsDateFilter: (state, action: PayloadAction<'oldest' | 'newest'>) => {
+      if (action.payload === 'newest') {
         const sortedNewest = [...state.comments].sort((a, b) => {
           const dateA = a.createdAt ? parseDate(a.createdAt).getTime() : 0;
           const dateB = b.createdAt ? parseDate(b.createdAt).getTime() : 0;

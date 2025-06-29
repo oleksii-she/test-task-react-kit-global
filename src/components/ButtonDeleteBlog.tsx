@@ -26,9 +26,14 @@ export const DeleteBlogBtn = ({ id }: { id: string }) => {
       dispatch(deleteBlog(id));
       router.back();
       setToggle(false);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Error during blog deletion:", err);
-      setError("An unexpected error occurred.");
+
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Unknown error occurred during deletion.");
+      }
     } finally {
       setIsLoading(false);
     }

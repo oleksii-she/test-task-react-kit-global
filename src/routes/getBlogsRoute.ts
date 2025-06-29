@@ -1,18 +1,11 @@
-import { db } from "@/firebase/config";
-import {
-  doc,
-  getDoc,
-  collection,
-  getDocs,
-  orderBy,
-  query,
-  Timestamp,
-} from "firebase/firestore";
-import { IBlog } from "@/types";
-import { formatFireStoreTimestamp } from "@/utills";
+import { db } from '@/firebase/config';
+import { doc, getDoc, collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { IBlog } from '@/types/types';
+import { formatFireStoreTimestamp } from '@/utils/utills';
+import { getUserId } from './getUserId';
 export const getBlogsRoute = async (): Promise<IBlog[]> => {
   try {
-    const q = query(collection(db, "blogs"), orderBy("createdAt", "desc"));
+    const q = query(collection(db, 'blogs'), orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
 
     const blogs: IBlog[] = [];
@@ -22,6 +15,7 @@ export const getBlogsRoute = async (): Promise<IBlog[]> => {
 
       blogs.push({
         id: doc.id,
+        userId: data.userId ?? '',
         title: data.title,
         description: data.description,
         createdAt: createdAtString,
@@ -31,9 +25,9 @@ export const getBlogsRoute = async (): Promise<IBlog[]> => {
     return blogs;
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("get blog error:", error.message);
+      console.error('get blog error:', error.message);
     } else {
-      console.error("unknown error:", error);
+      console.error('unknown error:', error);
     }
     throw error;
   }
@@ -41,30 +35,21 @@ export const getBlogsRoute = async (): Promise<IBlog[]> => {
 
 export const getBlogByIdRoute = async (id: string): Promise<IBlog | null> => {
   try {
-    const docRef = doc(db, "blogs", id);
+    const docRef = doc(db, 'blogs', id);
 
     const docSnapshot = await getDoc(docRef);
 
     if (docSnapshot.exists()) {
       const data = docSnapshot.data();
-      let createdAtString: string;
-
-      if (data.createdAt instanceof Timestamp) {
-        createdAtString = data.createdAt.toDate().toISOString();
-      } else if (data.createdAt) {
-        try {
-          createdAtString = new Date(data.createdAt).toISOString();
-        } catch {
-          createdAtString = new Date().toISOString();
-        }
-      } else {
-        createdAtString = new Date().toISOString();
-      }
+      const createdAtString = formatFireStoreTimestamp(data.createdAt);
+      const user = await getUserId(data.userId);
 
       return {
         id: docSnapshot.id,
         title: data.title,
+        name: user?.name,
         description: data.description,
+        userId: data.userId,
         createdAt: createdAtString,
       } as IBlog;
     } else {

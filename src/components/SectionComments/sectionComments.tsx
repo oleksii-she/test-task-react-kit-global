@@ -1,33 +1,24 @@
-"use client";
-import { ZodError } from "zod";
-import { useState, useEffect, useRef } from "react";
-import { IComment } from "@/types";
-import { CommentForm } from "../blogForm/addCommentForm";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import {
-  getCommentsApi,
-  updateComment,
-  sortCommentsDateFilter,
-} from "@/store/features/blogSlice";
-import { updateCommentRoute } from "@/routes/commentsRoutes";
-import { addCommentSchema, addCommentSchemaNoId } from "@/schemasValidation";
-import { Filter } from "../filter";
-import { CommentsList } from "./commentsList";
-export const SectionComments = ({
-  id: blogPostId,
-  data,
-}: {
-  id: string;
-  data: IComment[];
-}) => {
+'use client';
+import { ZodError } from 'zod';
+import { useState, useEffect, useRef } from 'react';
+import { IComment } from '@/types/types';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { getCommentsApi, updateComment, sortCommentsDateFilter } from '@/store/features/blogSlice';
+import { updateCommentRoute } from '@/routes/commentsRoutes';
+import { addCommentSchema, addCommentSchemaNoId } from '@/schemasValidation';
+import { Filter } from '../filter';
+import { CommentsList } from './commentsList';
+import Loading from '@/app/loading';
+
+export const SectionComments = ({ id: blogPostId, data }: { id: string; data: IComment[] }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [disabled, setDisabled] = useState(true);
   const [updateState, setUpdateState] = useState<{
-    [key: string]: { author: string; text: string };
+    [key: string]: { text: string };
   }>({});
-  const [errorUpdate, setErrorUpdate] = useState("");
+  const [errorUpdate, setErrorUpdate] = useState('');
   const [errorFields, setErrorFields] = useState({
-    author: "",
-    text: "",
+    text: '',
   });
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const hasInitialized = useRef(false);
@@ -35,19 +26,17 @@ export const SectionComments = ({
   const dispatch = useAppDispatch();
   const comments = useAppSelector((state) => state.blogs.comments);
 
-  const validate = (state: { author: string; text: string }) => {
+  const validate = (state: { text: string }) => {
     const result = addCommentSchemaNoId.safeParse(state);
     if (!result.success) {
       const formatted = result.error.format();
       setErrorFields({
-        author: formatted.author?._errors?.[0] ?? "",
-        text: formatted.text?._errors?.[0] ?? "",
+        text: formatted.text?._errors?.[0] ?? '',
       });
       return false;
     }
     setErrorFields({
-      author: "",
-      text: "",
+      text: '',
     });
     return true;
   };
@@ -57,6 +46,7 @@ export const SectionComments = ({
     commentId: string
   ) => {
     const { name, value } = e.target;
+
     setUpdateState((prevState) => {
       const updatedComment = {
         ...prevState[commentId],
@@ -77,6 +67,7 @@ export const SectionComments = ({
 
   const submitEditComment = async () => {
     if (!editingCommentId) return;
+    setIsLoading(true);
     setDisabled(true);
     const updatedData = {
       id: editingCommentId,
@@ -87,7 +78,6 @@ export const SectionComments = ({
       const parse = addCommentSchema.parse(updatedData);
 
       const updates = {
-        author: parse.author,
         text: parse.text,
       };
 
@@ -98,63 +88,64 @@ export const SectionComments = ({
       });
 
       if (!res) {
-        setErrorUpdate("Sorry, failed to make an update");
+        setErrorUpdate('Sorry, failed to make an update');
         return;
       }
       dispatch(updateComment(res));
 
       setEditingCommentId(null);
+      setIsLoading(false);
       setUpdateState({});
-      setErrorUpdate("");
+      setErrorUpdate('');
     } catch (error) {
       if (error instanceof ZodError) {
         const fieldErrors: { [key: string]: string } = {};
         error.errors.forEach((err) => {
           const field = err.path[0];
-          if (typeof field === "string") {
+          if (typeof field === 'string') {
             fieldErrors[field] = err.message;
           }
         });
 
         setErrorFields({
-          author: fieldErrors.author || "",
-          text: fieldErrors.text || "",
+          text: fieldErrors.text || '',
         });
+      } else if (error instanceof Error) {
+        setErrorUpdate(error.message);
       } else {
-        setErrorUpdate("Unexpected error occurred");
+        setErrorUpdate('Unexpected error occurred');
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!hasInitialized.current && data.length > 0) {
-      dispatch(getCommentsApi(data));
+    if (!hasInitialized.current && data) {
+      dispatch(getCommentsApi([...data]));
       hasInitialized.current = true;
     }
   }, [dispatch, data]);
 
-  const changFilter = (value: "oldest" | "newest") => {
+  const changFilter = (value: 'oldest' | 'newest') => {
     dispatch(sortCommentsDateFilter(value));
   };
 
   return (
     <section className="space-y-6">
       <div>
-        <h3 className="text-xl font-semibold text-indigo-300 mb-2">Comments</h3>
-
-        <CommentForm id={blogPostId} />
-
         {comments.length !== 0 && (
           <div className="mb-5">
             <Filter onChange={changFilter} />
           </div>
         )}
 
-        {comments.length === 0 && !hasInitialized.current && (
+        {comments.length === 0 && (
           <h2 className="text-white text-center font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-6xl">
             Write your comment ✍️
           </h2>
         )}
+        {isLoading && <Loading />}
         <CommentsList
           comments={comments}
           editingCommentId={editingCommentId}
