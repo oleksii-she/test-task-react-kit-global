@@ -64,7 +64,7 @@ export const AddBlogForm = ({
   };
 
   const dispatch = useAppDispatch();
-  console.log(initialState, 'initialState');
+
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

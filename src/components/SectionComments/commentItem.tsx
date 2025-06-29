@@ -33,7 +33,6 @@ export const CommentItem = ({
   }
 
   const validUser = userId && sessionId && userId === sessionId;
-  console.log(sessionId, 'validUser');
 
   return (
     <li className="p-4 border border-gray-700 rounded-lg bg-neutral-800 mb-4" key={commentId}>
