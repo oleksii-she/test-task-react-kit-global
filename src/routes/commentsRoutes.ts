@@ -52,6 +52,7 @@ export const addCommentRoute = async ({
         id: docRef.id,
         userId: newCommentData.userId,
         author: data.name,
+        avatar: data.avatar ?? '',
         text: newCommentData.text,
         createdAt: createdAtString,
       };
@@ -79,15 +80,16 @@ export const getCommentsForPost = async (blogPostId: string): Promise<IComment[]
     const commentsPromises = querySnapshot.docs.map(async (doc) => {
       const data = doc.data();
       const createdAtString = formatFireStoreTimestamp(data.createdAt);
-      let userName;
-      if (data.userId) {
-        const userData: IProfile | null = await getUserId(data.userId);
-        userName = userData?.name ?? '';
+      const userData: IProfile | null = await getUserId(data.userId);
+
+      if (!userData) {
+        throw new Error('Could not get the user.');
       }
 
       return {
         id: doc.id,
-        author: userName ?? '',
+        author: userData?.name ?? '',
+        avatar: userData?.avatar ?? '',
         userId: data.userId,
         text: data.text ?? '',
         createdAt: createdAtString,
@@ -186,18 +188,17 @@ export const updateCommentRoute = async ({
       const newCommentData = newCommentSnapshot.data();
 
       const createdAtString = formatFireStoreTimestamp(newCommentData.createdAt);
+      const userData: IProfile | null = await getUserId(newCommentData.userId);
 
-      let userName;
-
-      if (newCommentData.userId) {
-        const userData: IProfile | null = await getUserId(newCommentData.userId);
-        userName = userData?.name ?? '';
+      if (!userData) {
+        throw new Error('Could not get the user.');
       }
 
       return {
         id: commentDocRef.id,
         userId: newCommentData.userId,
-        author: userName,
+        avatar: userData?.avatar ?? '',
+        author: userData?.name ?? '',
         text: newCommentData.text,
         createdAt: createdAtString,
       };

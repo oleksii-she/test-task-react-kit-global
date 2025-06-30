@@ -1,4 +1,5 @@
 import type { User } from 'next-auth';
+import Image from 'next/image';
 import { CommentEdit } from '../blogForm/editCommentForm';
 import { ButtonDeleteComment } from '../ButtonDeleteComment';
 import { ICommentItemProps } from '@/types/types';
@@ -41,9 +42,21 @@ export const CommentItem = ({
           <>
             <div className="flex justify-between items-center mb-5">
               <div className="flex gap-4 items-center">
-                <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-semibold shadow">
-                  {author?.slice(0, 2).toUpperCase()}
-                </div>
+                {!comment.avatar ? (
+                  <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-semibold shadow">
+                    {author?.slice(0, 2).toUpperCase()}
+                  </div>
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-semibold shadow">
+                    <Image
+                      src={comment.avatar}
+                      alt={author ? author : 'Avatar'}
+                      width={36}
+                      height={36}
+                      className="rounded-full"
+                    />
+                  </div>
+                )}
                 <span className="text-white font-medium">{author}</span>
               </div>
               <span className="text-xs text-gray-400">{comment.createdAt}</span>

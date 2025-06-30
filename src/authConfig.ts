@@ -1,7 +1,12 @@
 import { NextAuthOptions } from 'next-auth';
+import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithCredential,
+} from 'firebase/auth';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '@/firebase/config';
 
 import type { User } from 'next-auth';
@@ -81,15 +86,80 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    }),
   ],
 
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
       }
+
+      if (account?.provider === 'google') {
+        console.log(account, 'account');
+
+        const googleCredential = GoogleAuthProvider.credential(
+          account.id_token || account.access_token
+        );
+
+        try {
+          const firebaseAuthResult = await signInWithCredential(auth, googleCredential);
+          const firebaseUser = firebaseAuthResult.user;
+
+          token.id = firebaseUser.uid;
+          token.email = firebaseUser.email;
+          token.name = firebaseUser.displayName;
+          token.image = firebaseUser.photoURL;
+
+          const userDocRef = doc(db, 'users', firebaseUser.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          if (!userDocSnap.exists()) {
+            await setDoc(
+              userDocRef,
+              {
+                userId: firebaseUser.uid,
+                name: firebaseUser.displayName || '',
+                avatar: firebaseUser.photoURL || '',
+                description: '',
+                contacts: {
+                  phone: '',
+                  email: firebaseUser.email || '',
+                  other: '',
+                },
+                showContacts: false,
+                createdAt: serverTimestamp(),
+              },
+              { merge: true }
+            );
+          } else {
+            await setDoc(
+              userDocRef,
+              {
+                name: firebaseUser.displayName || '',
+                avatar: firebaseUser.photoURL || '',
+                contacts: {
+                  email: firebaseUser.email || '',
+                },
+              },
+              { merge: true }
+            );
+          }
+        } catch (error: unknown) {
+          if (isFirebaseAuthError(error)) {
+            console.error('Firebase Auth Error during Google sign-in:', error.code, error.message);
+            throw new Error('Error signing in with Google. Please try again.');
+          } else {
+            console.error('Unknown error during Google sign-in:', error);
+            throw new Error('Error signing in with Google. Please try again.');
+          }
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
