@@ -12,6 +12,7 @@ export interface IComment {
   id: string;
   userId?: string;
   author?: string;
+  avatar: string;
   text?: string;
   createdAt?: string;
 }

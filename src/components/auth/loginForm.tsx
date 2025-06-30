@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+
 import { UInputText } from '@/components/UComponent/UInputText';
 import { loginSchema, fargotSchema } from '@/schemasValidation';
 import { useRouter } from 'next/navigation';
@@ -8,6 +9,7 @@ import { useValidation } from '@/hooks/useValidation';
 import { Loader } from '../Loader/Loader';
 import { resetPassword } from '@/routes/usersRoutes';
 import { signIn } from 'next-auth/react';
+import { GoogleIcon } from '../icons/icons';
 
 const ForgotPassword = ({ handlerForgotPassword }: { handlerForgotPassword: () => void }) => {
   const [disabled, setDisabled] = useState(true);
@@ -43,12 +45,12 @@ const ForgotPassword = ({ handlerForgotPassword }: { handlerForgotPassword: () =
     try {
       const result = await resetPassword(initialValue.email);
       if (result) {
-        setMessageEmail('На вашу електронну пошту надіслано посилання для скидання пароля.');
+        setMessageEmail('A link to reset your password has been sent to your email.');
         setTimeout(() => {
           handlerForgotPassword();
         }, 6000);
       } else {
-        setError('Не вдалося надіслати посилання для скидання пароля. Спробуйте ще раз.');
+        setError('Unable to send a password reset link. Please try again.');
       }
     } catch (error: unknown) {
       console.error('Critical error during sign in:', error);
@@ -56,7 +58,7 @@ const ForgotPassword = ({ handlerForgotPassword }: { handlerForgotPassword: () =
       if (error instanceof Error) {
         setError(error.message);
       } else {
-        setError('Невідома помилка. Спробуйте ще раз.');
+        setError('Unknown error. Please try again.');
       }
     } finally {
       setLoad(false);
@@ -111,6 +113,7 @@ const ForgotPassword = ({ handlerForgotPassword }: { handlerForgotPassword: () =
     </form>
   );
 };
+
 export const LoginForm = () => {
   const [disabled, setDisabled] = useState(true);
   const [load, setLoad] = useState(false);
@@ -164,8 +167,6 @@ export const LoginForm = () => {
         const isFromAuth = referrer && new URL(referrer).pathname.startsWith('/auth');
 
         if (isDirectVisit || isFromAuth) {
-          console.log(isFromAuth, 'isFromAuth');
-
           router.push('/');
         } else {
           router.back();
@@ -182,6 +183,36 @@ export const LoginForm = () => {
     } finally {
       setLoad(false);
       setDisabled(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError('');
+    try {
+      const result = await signIn('google', { redirect: false });
+
+      if (result?.error) {
+        setError(result.error);
+      } else if (result?.ok) {
+        const referrer = document.referrer;
+        const isDirectVisit = !referrer;
+
+        const isFromAuth = referrer && new URL(referrer).pathname.startsWith('/auth');
+
+        if (isDirectVisit || isFromAuth) {
+          router.push('/');
+        } else {
+          router.back();
+        }
+      } else {
+        setError('Error signing in with Google');
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('Error signing in with Google');
+      }
     }
   };
 
@@ -239,6 +270,16 @@ export const LoginForm = () => {
       <Link href="/auth/signup" className="text-sm text-center text-blue-400 hover:underline">
         Don&apos;t have an account? Register
       </Link>
+
+      <div className="flex justify-center items-center gap-2 mt-4">
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          className="cursor-pointer w-8 h-8 flex items-center justify-center rounded-full bg-white shadow transition-transform duration-200 hover:scale-110 hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >
+          <GoogleIcon />
+        </button>
+      </div>
     </form>
   );
 };

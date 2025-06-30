@@ -13,6 +13,8 @@ export const ProfileUser = ({ data }: { data: IProfile }) => {
           {data.avatar ? (
             <Image
               src={data.avatar}
+              width={112}
+              height={112}
               alt={data.name}
               className="w-full h-full rounded-full object-cover"
             />
