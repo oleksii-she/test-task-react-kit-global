@@ -81,16 +81,17 @@ export const getCommentsForPost = async (blogPostId: string): Promise<IComment[]
       const data = doc.data();
       const createdAtString = formatFireStoreTimestamp(data.createdAt);
       const userData: IProfile | null = await getUserId(data.userId);
+      console.log(userData, 'userData');
 
-      if (!userData) {
+      /*   if (!userData) {
         throw new Error('Could not get the user.');
-      }
+      } */
 
       return {
         id: doc.id,
-        author: userData?.name ?? '',
-        avatar: userData?.avatar ?? '',
-        userId: data.userId,
+        author: userData?.name ? userData.name : 'The user has been deleted',
+        avatar: userData?.avatar ? userData.avatar : '',
+        userId: data.userId ? data.userId : '',
         text: data.text ?? '',
         createdAt: createdAtString,
       };

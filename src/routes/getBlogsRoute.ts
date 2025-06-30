@@ -82,7 +82,7 @@ export const getBlogByIdRoute = async (id: string): Promise<IBlog | null> => {
       return {
         id: docSnapshot.id,
         title: data.title,
-        name: user?.name,
+        name: user?.name ? user.name : 'The user has been deleted',
         description: data.description,
         userId: data.userId,
         createdAt: createdAtString,
@@ -92,9 +92,9 @@ export const getBlogByIdRoute = async (id: string): Promise<IBlog | null> => {
     }
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error(`Помилка при отриманні блогу з ID ${id}:`, error.message);
+      console.error(`Error getting a blog with an ID ${id}:`, error.message);
     } else {
-      console.error(`Невідома помилка при отриманні блогу з ID ${id}:`, error);
+      console.error(`Unknown error when retrieving blog from ID ${id}:`, error);
     }
     throw error;
   }
