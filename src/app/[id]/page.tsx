@@ -3,14 +3,14 @@ import type { User } from 'next-auth';
 import { getBlogByIdRoute } from '@/routes/getBlogsRoute';
 import { EditBlogBtn } from '@/components/ButtonEditBlog';
 import { DeleteBlogBtn } from '@/components/ButtonDeleteBlog';
-import { SectionComments } from '@/components/SectionComments/sectionComments';
+
 import { getCommentsForPost } from '@/routes/commentsRoutes';
 import NotFound from '../not-found';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/authConfig';
 import { IComment } from '@/types/types';
 import { CommentForm } from '@/components/blogForm/addCommentForm';
-
+import { SectionComments } from '@/components/SectionComments/sectionComments';
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const id = (await params).id;
 
