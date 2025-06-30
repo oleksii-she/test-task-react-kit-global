@@ -115,11 +115,8 @@ export const RegistrationForm = () => {
       >
         Registration
       </button>
-      <Link
-        href="/auth/signup"
-        className="text-sm text-center text-blue-400 hover:underline"
-      >
-        Don&apos;t have an account? Register
+      <Link href="/auth/signin" className="text-sm text-center text-blue-400 hover:underline">
+        I have an account! Sign In
       </Link>
     </form>
   );

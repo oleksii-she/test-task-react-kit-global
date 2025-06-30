@@ -1,5 +1,5 @@
 'use server';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { setDoc, serverTimestamp, doc } from 'firebase/firestore';
 import { db, auth } from '@/firebase/config';
 
@@ -41,6 +41,22 @@ export const registerUser = async (data: IRegistration) => {
       console.error('error create user comment:', error.message);
     } else {
       console.error('unknown create user error:', error);
+    }
+    throw error;
+  }
+};
+
+
+
+export const resetPassword = async (email: string) => {
+  try {
+    await sendPasswordResetEmail(auth, email);
+    return true;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error('error reset password:', error.message);
+    } else {
+      console.error('unknown reset password error:', error);
     }
     throw error;
   }
