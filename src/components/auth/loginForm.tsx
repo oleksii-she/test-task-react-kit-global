@@ -204,8 +204,6 @@ export const LoginForm = () => {
         } else {
           router.back();
         }
-      } else {
-        setError('Error signing in with Google');
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
