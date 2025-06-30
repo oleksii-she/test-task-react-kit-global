@@ -6,7 +6,7 @@ import { UAuhProfile } from './UComponent/UAuthProfile';
 export const Header = () => {
   return (
     <header className="bg-black text-white py-4 shadow-md border-b border-gray-700">
-      <div className="container mx-auto px-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+      <div className="flex justify-between items-center mx-auto px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
           className="text-3xl sm:text-4xl font-extrabold hover:text-gray-300 transition"
