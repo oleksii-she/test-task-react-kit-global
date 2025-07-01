@@ -1,4 +1,5 @@
 import { NextAuthOptions } from 'next-auth';
+
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import {
@@ -6,7 +7,7 @@ import {
   GoogleAuthProvider,
   signInWithCredential,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebase/config';
 
 import type { User } from 'next-auth';
@@ -59,6 +60,14 @@ export const authOptions: NextAuthOptions = {
 
             if (userDocSnap.exists()) {
               const firestoreData = userDocSnap.data();
+
+              await updateDoc(
+                userDocRef,
+                {
+                  emailVerified: firebaseUser.emailVerified,
+                }
+              );
+
               return {
                 id: firebaseUser.uid,
                 email: firebaseUser.email,

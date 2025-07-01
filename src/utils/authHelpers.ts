@@ -9,6 +9,13 @@ const verifyUserExists = async (currentUserId: string): Promise<boolean> => {
     const docRef = doc(db, 'users', currentUserId);
     const docSnapshot = await getDoc(docRef);
 
+    if (docSnapshot.exists()) {
+      const data = docSnapshot.data();
+      if (!data.emailVerified) {
+        throw new Error('Email not verified.');
+      }
+    }
+
     if (!docSnapshot.exists()) {
       throw new Error('The user was not found.');
     }

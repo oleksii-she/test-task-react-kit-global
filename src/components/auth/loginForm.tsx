@@ -3,15 +3,14 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 import { UInputText } from '@/components/UComponent/UInputText';
-import { loginSchema, fargotSchema } from '@/schemasValidation';
+import { loginSchema } from '@/schemasValidation';
 import { useRouter } from 'next/navigation';
 import { useValidation } from '@/hooks/useValidation';
 import { Loader } from '../Loader/Loader';
-import { resetPassword } from '@/routes/usersRoutes';
 import { signIn } from 'next-auth/react';
 import { GoogleIcon } from '../icons/icons';
 
-const ForgotPassword = ({ handlerForgotPassword }: { handlerForgotPassword: () => void }) => {
+/* const ForgotPassword = ({ handlerForgotPassword }: { handlerForgotPassword: () => void }) => {
   const [disabled, setDisabled] = useState(true);
   const [load, setLoad] = useState(false);
 
@@ -112,21 +111,16 @@ const ForgotPassword = ({ handlerForgotPassword }: { handlerForgotPassword: () =
       </Link>
     </form>
   );
-};
+}; */
 
 export const LoginForm = () => {
   const [disabled, setDisabled] = useState(true);
   const [load, setLoad] = useState(false);
-  const [toggleForgotPassword, setToggleForgotPassword] = useState(false);
 
   const [initialValue, setInitialValue] = useState({
     email: '',
     password: '',
   });
-
-  const handlerForgotPassword = () => {
-    setToggleForgotPassword(!toggleForgotPassword);
-  };
 
   const [error, setError] = useState('');
 
@@ -214,10 +208,6 @@ export const LoginForm = () => {
     }
   };
 
-  if (toggleForgotPassword) {
-    return <ForgotPassword handlerForgotPassword={handlerForgotPassword} />;
-  }
-
   return (
     <form
       onSubmit={submit}
@@ -257,13 +247,12 @@ export const LoginForm = () => {
 
         {error && <p className="text-sm text-red-500 text-center mt-2">{error}</p>}
       </div>
-      <button
-        type="button"
-        onClick={() => handlerForgotPassword()}
+      <Link
+        href={'/auth/forgot-password'}
         className="text-sm text-center text-blue-400 hover:underline"
       >
         Forgot your password?
-      </button>
+      </Link>
 
       <Link href="/auth/signup" className="text-sm text-center text-blue-400 hover:underline">
         Don&apos;t have an account? Register
