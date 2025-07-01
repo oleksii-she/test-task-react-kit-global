@@ -84,7 +84,7 @@ npm run lint # Run ESLint checks
 
 ### 📌 Future Improvements
 
-- 🔐 Work on voterization, make it possible to restore the password, as well as log in with Google
+- add editting user profile
   -🖼️ Add support for post images or cover photos
 
 ### 📄 License
