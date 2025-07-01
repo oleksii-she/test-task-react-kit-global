@@ -22,6 +22,7 @@ export const getUserId = async (userId: string): Promise<IProfile | null> => {
         name: data.name,
         avatar: data.avatar,
         description: data.description,
+        emailVerified: data.emailVerified,
         contacts: {
           phone: data.phone,
           email: data.email,

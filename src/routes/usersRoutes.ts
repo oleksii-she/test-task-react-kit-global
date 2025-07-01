@@ -4,13 +4,16 @@ import {
   sendPasswordResetEmail,
   signInWithPopup,
   GoogleAuthProvider,
+  sendEmailVerification,
 } from 'firebase/auth';
-import { setDoc, serverTimestamp, doc } from 'firebase/firestore';
+import { setDoc, serverTimestamp, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db, auth } from '@/firebase/config';
 
 import { IRegistration } from '@/types/types';
 
 import { getUserId } from './getUserId';
+import { IProfile, IUpdateProfile } from '@/types/types';
+import { formatFireStoreTimestamp } from '@/utils/utills';
 
 export const registerUser = async (data: IRegistration) => {
   try {
@@ -19,9 +22,10 @@ export const registerUser = async (data: IRegistration) => {
     const user = userCredential.user;
 
     if (user) {
+      await sendEmailVerification(user);
       const profileDataToSave = {
-        userId: user.uid,
         name: name,
+        emailVerified: user.emailVerified,
         avatar: '',
         description: '',
         contacts: {
@@ -48,6 +52,26 @@ export const registerUser = async (data: IRegistration) => {
       console.error('unknown create user error:', error);
     }
     throw error;
+  }
+};
+
+export const resendEmailVerification = async () => {
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error('Користувач не авторизований.');
+  }
+
+  if (user.emailVerified) {
+    throw new Error('Електронна пошта вже підтверджена.');
+  }
+
+  try {
+    await sendEmailVerification(user);
+    return { success: true, message: 'Лист з підтвердженням надіслано повторно.' };
+  } catch (error: unknown) {
+    console.error('Помилка при повторному надсиланні листа:', error);
+    return { success: false, message: 'Не вдалося надіслати лист з підтвердженням.' };
   }
 };
 
@@ -82,6 +106,47 @@ export const signInWithGoogle = async () => {
       console.error('error signing in with Google:', error.message);
     } else {
       console.error('unknown error signing in with Google:', error);
+    }
+    throw error;
+  }
+};
+
+export const updateUserProfile = async (id: string, dataToUpdate: IUpdateProfile): Promise<IProfile> => {
+  try {
+    const userRef = doc(db, 'users', id);
+
+    const updatePayload = {
+      ...dataToUpdate,
+    };
+
+    await updateDoc(userRef, updatePayload);
+    const newUserSnapshot = await getDoc(userRef);
+
+    if (newUserSnapshot.exists()) {
+      const newUserData = newUserSnapshot.data();
+
+      const createdAtString = formatFireStoreTimestamp(newUserData.createdAt);
+
+      return {
+        id: id,
+        name: newUserData.name || '',
+        avatar: newUserData.avatar || '',
+        showContacts: newUserData.showContacts ?? false,
+        ...newUserData,
+        createdAt: createdAtString || '',
+      };
+    } else {
+      throw new Error('Just added/Updated Blog was not found in Firestore.');
+    }
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      if (error.message.includes('document does not exist')) {
+        console.error(`Id:  ${id} not found.`, error.message);
+      } else {
+        console.error(`error update ${id}:`, error.message);
+      }
+    } else {
+      console.error(`error ${id}:`, error);
     }
     throw error;
   }

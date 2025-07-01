@@ -1,6 +1,8 @@
 import { ProfileUser } from '@/components/profile/userProfile';
 import type { Metadata } from 'next';
 import type { User } from 'next-auth';
+import { redirect } from 'next/navigation';
+
 import { getUserId } from '@/routes/getUserId';
 import { getServerSession } from 'next-auth';
 import { IBlog, IProfile } from '@/types/types';
@@ -9,6 +11,7 @@ import { authOptions } from '@/authConfig';
 import { getBlogsByUserId } from '@/routes/getBlogsRoute';
 import { BlogList } from '@/components/blogList/BlogList';
 import { ButtonSignOut } from '@/components/ButtonSignOut';
+
 export const metadata: Metadata = {
   title: 'Profile',
   description: 'Profile information!',
@@ -24,6 +27,10 @@ const ProfilePage = async () => {
   }
 
   const userData: IProfile | null = await getUserId(userId);
+
+  if (!userData?.emailVerified) {
+    redirect('/auth/verify-email');
+  }
   const blogData: IBlog[] = await getBlogsByUserId(userId);
   let signOut = false;
   if (!userData) {

@@ -1,14 +1,16 @@
 'use client';
 import Link from 'next/link';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-
 import { UInputText } from '@/components/UComponent/UInputText';
 import { registrationSchema } from '@/schemasValidation';
 import { useValidation } from '@/hooks/useValidation';
 import { Loader } from '../Loader/Loader';
 import { registerUser } from '@/routes/usersRoutes';
+import { auth } from '@/firebase/config';
+
 export const RegistrationForm = () => {
   const [disabled, setDisabled] = useState(true);
   const [load, setLoad] = useState(false);
@@ -45,15 +47,21 @@ export const RegistrationForm = () => {
     try {
       await registerUser(initialValue);
 
-      await signIn('credentials', {
+      const result = await signIn('credentials', {
         redirect: false,
         email: initialValue.email,
         password: initialValue.password,
       });
 
-      router.back();
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+      await signInWithEmailAndPassword(auth, initialValue.email, initialValue.password);
 
-      setError('');
+      router.push('/auth/verify-email');
+
+      router.push('/auth/verify-email');
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
@@ -65,6 +73,7 @@ export const RegistrationForm = () => {
       setLoad(false);
     }
   };
+
   return (
     <form
       onSubmit={submit}

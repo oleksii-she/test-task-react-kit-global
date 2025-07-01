@@ -69,6 +69,7 @@ export interface IProfile {
   name: string;
   avatar: string;
   description?: string;
+  emailVerified?: boolean;
   contacts?: {
     phone?: string;
     email?: string;
@@ -77,5 +78,22 @@ export interface IProfile {
     telegram?: string;
   };
   showContacts: boolean;
+  createdAt?: string;
+}
+
+export interface IUpdateProfile {
+  id?: string;
+  name?: string;
+  avatar?: string;
+  description?: string;
+  emailVerified?: boolean;
+  contacts?: {
+    phone?: string;
+    email?: string;
+    twitter?: string;
+    linkedIn?: string;
+    telegram?: string;
+  };
+  showContacts?: boolean;
   createdAt?: string;
 }
