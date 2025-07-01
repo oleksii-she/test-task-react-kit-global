@@ -16,6 +16,7 @@ export const getUserId = async (userId: string): Promise<IProfile | null> => {
     if (docSnapshot.exists()) {
       const data = docSnapshot.data();
       const createdAtString = formatFireStoreTimestamp(data.createdAt);
+      console.log(data, 'data');
 
       const profile: IProfile = {
         id: docSnapshot.id,

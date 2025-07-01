@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react';
 import { auth } from '@/firebase/config';
 import { sendEmailVerification } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-
+import { useSession } from 'next-auth/react';
 import { updateUserProfile } from '@/routes/usersRoutes';
+import { getUserId } from '@/routes/getUserId';
+import { IProfile } from '@/types/types';
 
 export default function VerifyEmail() {
   const [user, setUser] = useState(auth.currentUser);
@@ -13,12 +15,28 @@ export default function VerifyEmail() {
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
-
+  const { data: session } = useSession();
   useEffect(() => {
-    if (user?.emailVerified) {
+    if (user && !user.emailVerified) {
       router.push('/profile');
+    } else {
+      const fetchUser = async () => {
+        const userId = (session?.user as { id?: string })?.id;
+        if (userId) {
+          const userObj: IProfile | null = await getUserId(userId);
+          if (!userObj) {
+            setError("We couldn't find the registered user, try logging back in");
+            return;
+          }
+          if (userObj?.emailVerified) {
+            router.push('/profile');
+          }
+        }
+      };
+
+      fetchUser();
     }
-  }, [router, user?.emailVerified]);
+  }, [router, session, user]);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
