@@ -1,6 +1,6 @@
 import { AvatarIcon } from '@/components/icons/icons';
 import { IProfile } from '@/types/types';
-import { ButtonSignOut } from '../ButtonSignOut';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { AddBlog } from '../ButtonAddBlog';
@@ -42,7 +42,6 @@ export const ProfileUser = ({ data }: { data: IProfile }) => {
             </Link>
           </div>
         </div>
-        <ButtonSignOut />
       </div>
 
       <p className="italic text-gray-300 mt-6">
