@@ -17,7 +17,7 @@ export default function VerifyEmail() {
   const router = useRouter();
   const { data: session } = useSession();
   useEffect(() => {
-    if (user && !user.emailVerified) {
+    if (user && user.emailVerified) {
       router.push('/profile');
     } else {
       const fetchUser = async () => {
