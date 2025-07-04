@@ -61,12 +61,9 @@ export const authOptions: NextAuthOptions = {
             if (userDocSnap.exists()) {
               const firestoreData = userDocSnap.data();
 
-              await updateDoc(
-                userDocRef,
-                {
-                  emailVerified: firebaseUser.emailVerified,
-                }
-              );
+              await updateDoc(userDocRef, {
+                emailVerified: firebaseUser.emailVerified,
+              });
 
               return {
                 id: firebaseUser.uid,
@@ -110,8 +107,6 @@ export const authOptions: NextAuthOptions = {
       }
 
       if (account?.provider === 'google') {
-        console.log(account, 'account');
-
         const googleCredential = GoogleAuthProvider.credential(
           account.id_token || account.access_token
         );
@@ -135,6 +130,7 @@ export const authOptions: NextAuthOptions = {
                 name: firebaseUser.displayName || '',
                 avatar: firebaseUser.photoURL || '',
                 description: '',
+                emailVerified: firebaseUser.emailVerified,
                 contacts: {
                   phone: '',
                   email: firebaseUser.email || '',
@@ -151,6 +147,7 @@ export const authOptions: NextAuthOptions = {
               {
                 name: firebaseUser.displayName || '',
                 avatar: firebaseUser.photoURL || '',
+                emailVerified: firebaseUser.emailVerified,
                 contacts: {
                   email: firebaseUser.email || '',
                 },

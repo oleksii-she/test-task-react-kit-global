@@ -16,55 +16,34 @@ export default function VerifyEmail() {
   const [error, setError] = useState('');
   const router = useRouter();
   const { data: session } = useSession();
-// useEffect(() => {
-//   if (user && user.emailVerified) {
-//     router.push('/profile');
-//   } else {
-//     const fetchUser = async () => {
-//       const userId = (session?.user as { id?: string })?.id;
-//       if (userId) {
-//         const userObj: IProfile | null = await getUserId(userId);
-//         if (!userObj) {
-//           setError("We couldn't find the registered user, try logging back in");
-//           return;
-//         }
-//         if (userObj?.emailVerified) {
-//           router.push('/profile');
-//         }
-//       }
-//     };
 
-//     fetchUser();
-//   }
-// }, [router, session, user]);
+  useEffect(() => {
+    const checkAndRedirect = async () => {
+      const authUser = user;
+      const userId = (session?.user as { id?: string })?.id;
 
-useEffect(() => {
-  const checkAndRedirect = async () => {
-    const authUser = user;
-    const userId = (session?.user as { id?: string })?.id;
+      if (!authUser || !userId) return;
 
-    if (!authUser || !userId) return;
+      if (authUser.emailVerified) {
+        const userObj: IProfile | null = await getUserId(userId);
 
-    if (authUser.emailVerified) {
-      const userObj: IProfile | null = await getUserId(userId);
+        if (!userObj) {
+          setError("We couldn't find the registered user, try logging back in");
+          return;
+        }
 
-      if (!userObj) {
-        setError("We couldn't find the registered user, try logging back in");
-        return;
+        if (!userObj.emailVerified) {
+          await updateUserProfile(authUser.uid, {
+            emailVerified: true,
+          });
+        }
+
+        router.push('/profile');
       }
+    };
 
-      if (!userObj.emailVerified) {
-        await updateUserProfile(authUser.uid, {
-          emailVerified: true,
-        });
-      }
-
-      router.push('/profile');
-    }
-  };
-
-  checkAndRedirect();
-}, [router, session, user]);
+    checkAndRedirect();
+  }, [router, session, user]);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
